@@ -260,42 +260,57 @@ public class IntellijAzureActionManager extends AzureActionManager {
 
         @Override
         public void addAction(Object raw) {
-            this.group.addAction(raw);
-            this.doAddAction(raw);
+            AnAction anAction = getAction(raw);
+            if (anAction != null) {
+                this.group.addAction(raw);
+                this.add(anAction, Constraints.LAST);
+            }
         }
 
         @Override
         public void prependAction(Object action) {
-            throw new NotImplementedException();
+            AnAction anAction = getAction(action);
+            if (anAction != null) {
+                this.group.prependAction(action);
+                this.add(anAction, Constraints.FIRST);
+            }
         }
 
-        public void doAddAction(Object raw) {
+        private void doAddAction(Object raw) {
+            AnAction anAction = getAction(raw);
+            if (anAction != null) {
+                this.add(anAction, Constraints.LAST);
+            }
+        }
+
+        private AnAction getAction(Object raw) {
             if (raw instanceof Action.Id) {
                 raw = ((Action.Id<?>) raw).getId();
             }
-            if (raw instanceof String) {
-                final String actionId = (String) raw;
+            if (raw instanceof String actionId) {
                 if (actionId.startsWith("-")) {
                     final String title = actionId.replaceAll("-", "").trim();
                     if (StringUtils.isBlank(title)) {
-                        this.addSeparator();
+                        return Separator.create();
                     } else {
-                        this.addSeparator(title);
+                        return Separator.create(title);
                     }
                 } else if (StringUtils.isNotBlank(actionId)) {
                     final ActionManager am = ActionManager.getInstance();
                     final AnAction action = am.getAction(actionId);
                     if (action instanceof com.intellij.openapi.actionSystem.ActionGroup) {
-                        this.add(action);
+                        return action;
                     } else if (Objects.nonNull(action)) {
-                        this.add(new com.intellij.openapi.actionSystem.AnActionWrapper(action));
+                        return new com.intellij.openapi.actionSystem.AnActionWrapper(action);
                     }
                 }
             } else if (raw instanceof Action<?>) {
-                this.add(new AnActionWrapper<>((Action<?>) raw));
+                return new AnActionWrapper<>((Action<?>) raw);
             } else if (raw instanceof ActionGroup) {
-                this.add(new ActionGroupWrapper((ActionGroup) raw));
+                return new ActionGroupWrapper((ActionGroup) raw);
             }
+
+            return null;
         }
 
         public void registerCustomShortcutSetForActions(JComponent component, @Nullable Disposable disposable) {

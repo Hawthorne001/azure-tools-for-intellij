@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.kotlin)
     alias(libs.plugins.serialization)
     id("org.jetbrains.intellij.platform.module")
+    id("java")
 }
 
 repositories {
