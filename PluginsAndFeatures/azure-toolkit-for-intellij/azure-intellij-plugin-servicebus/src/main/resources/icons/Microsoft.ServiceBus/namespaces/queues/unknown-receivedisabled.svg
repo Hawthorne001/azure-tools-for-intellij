@@ -1,9 +1,1 @@
-<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect opacity="0.8" x="7" y="8" width="2" height="1" fill="#9AA7B0"/>
-<path opacity="0.7" fill-rule="evenodd" clip-rule="evenodd" d="M6 6H0V10H4V8.5L3 9L1 8V7L3 8L5 7V8H6V6Z" fill="#40B6E0"/>
-<circle cx="12.5" cy="12.5" r="3" stroke="#E05555"/>
-<rect x="10.3787" y="11.0858" width="1" height="5" transform="rotate(-45 10.3787 11.0858)" fill="#E05555"/>
-<path opacity="0.7" fill-rule="evenodd" clip-rule="evenodd" d="M10 6H16V9.67133C15.5426 9.10609 14.9511 8.65387 14.2738 8.3631L15 8V7L13 8L11 7V8L11.3152 8.1576C10.8411 8.28666 10.3981 8.4913 10 8.75777V6Z" fill="#40B6E0"/>
-<path opacity="0.8" fill-rule="evenodd" clip-rule="evenodd" d="M5 12.8V15L8 12L5 9V11.2H0V12.8H5Z" fill="#9AA7B0"/>
-<path fill-rule="evenodd" clip-rule="evenodd" d="M15 2V1H1V2V3V5H2H3V3H13V5H14L15 5V3V2Z" fill="#9AA7B0" fill-opacity="0.8"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 16 16"><rect width="2" height="1" x="7" y="8" fill="#9AA7B0" opacity=".8"/><path fill="#40B6E0" fill-rule="evenodd" d="M6 6H0V10H4V8.5L3 9L1 8V7L3 8L5 7V8H6V6Z" clip-rule="evenodd" opacity=".7"/><circle cx="12.5" cy="12.5" r="3" stroke="#E05555"/><rect width="1" height="5" x="10.379" y="11.086" fill="#E05555" transform="rotate(-45 10.3787 11.0858)"/><path fill="#40B6E0" fill-rule="evenodd" d="M10 6H16V9.67133C15.5426 9.10609 14.9511 8.65387 14.2738 8.3631L15 8V7L13 8L11 7V8L11.3152 8.1576C10.8411 8.28666 10.3981 8.4913 10 8.75777V6Z" clip-rule="evenodd" opacity=".7"/><path fill="#9AA7B0" fill-rule="evenodd" d="M5 12.8V15L8 12L5 9V11.2H0V12.8H5Z" clip-rule="evenodd" opacity=".8"/><path fill="#9AA7B0" fill-opacity=".8" fill-rule="evenodd" d="M15 2V1H1V2V3V5H2H3V3H13V5H14L15 5V3V2Z" clip-rule="evenodd"/></svg>
