@@ -61,7 +61,8 @@ class FunctionRunConfigurationType : ConfigurationTypeBase(
         val result = mutableListOf<Pair<RunnableProject, RunnerAndConfigurationSettings>>()
 
         functionProjects.forEach { runnableProject ->
-            val launchProfiles = LaunchSettingsJsonService.loadLaunchSettings(runnableProject)?.profiles
+            val launchSettingsJsonService = LaunchSettingsJsonService.getInstance(project)
+            val launchProfiles = launchSettingsJsonService.loadLaunchSettings(runnableProject)?.profiles
             if (launchProfiles != null) {
                 generateConfigurationForProfiles(
                     launchProfiles,
