@@ -19,9 +19,7 @@ dependencies {
     intellijPlatform {
         rider(platformVersion, false)
         jetbrainsRuntime()
-        bundledModule("intellij.rider")
         bundledPlugins(listOf("Docker"))
-        instrumentationTools()
     }
 
     implementation(libs.azureToolkitAuthLib)

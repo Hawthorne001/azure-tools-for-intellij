@@ -21,7 +21,6 @@ dependencies {
         rider(platformVersion, false)
         jetbrainsRuntime()
         bundledPlugins(listOf("org.jetbrains.plugins.terminal"))
-        instrumentationTools()
     }
 
     implementation(libs.javaWebSocket)

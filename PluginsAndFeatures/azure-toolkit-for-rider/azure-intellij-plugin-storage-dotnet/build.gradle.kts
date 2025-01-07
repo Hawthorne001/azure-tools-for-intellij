@@ -19,7 +19,6 @@ dependencies {
     intellijPlatform {
         rider(platformVersion, false)
         jetbrainsRuntime()
-        instrumentationTools()
     }
 
     implementation(project(path = ":azure-intellij-plugin-lib"))

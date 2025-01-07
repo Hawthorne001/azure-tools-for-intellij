@@ -20,7 +20,6 @@ dependencies {
         rider(platformVersion, false)
         jetbrainsRuntime()
         bundledPlugins(listOf("com.intellij.database"))
-        instrumentationTools()
     }
 
     implementation(project(path = ":azure-intellij-plugin-lib"))
