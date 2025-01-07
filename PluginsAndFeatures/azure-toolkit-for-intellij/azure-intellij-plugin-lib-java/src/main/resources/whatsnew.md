@@ -1,6 +1,9 @@
 <!-- Version: 3.88.0 -->
 # What's new in Azure Toolkit for IntelliJ
 
+## 3.94.0
+- Fix some known issues.
+
 ## 3.93.0
 - Support IntelliJ 2024.3 Beta
 - Support Azure Cloud Shell (Thanks for @rafaelldi)
