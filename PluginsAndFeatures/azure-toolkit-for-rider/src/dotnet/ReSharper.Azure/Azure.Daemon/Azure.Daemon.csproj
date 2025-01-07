@@ -1,17 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net472</TargetFramework>
         <RootNamespace>JetBrains.ReSharper.Azure.Daemon</RootNamespace>
         <AssemblyName>JetBrains.ReSharper.Azure.Daemon</AssemblyName>
     </PropertyGroup>
 
+    <Import Project="$(JetBrainsRiderRdBackendCommonReference)" Condition="Exists('$(JetBrainsRiderRdBackendCommonReference)')" />
+
     <ItemGroup>
-        <PackageReference Include="JetBrains.Rider.SDK" Version="$(RiderSDKVersion)" />
-        <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.net472" Version="1.0.3">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
         <PackageReference Include="CronExpressionDescriptor" Version="2.36.0" />
         <PackageReference Include="NCrontab.Signed" Version="3.3.3" />
     </ItemGroup>
