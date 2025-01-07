@@ -7,10 +7,6 @@ on:
   release:
     types: [prereleased, released]
 
-env:
-  # Branches from the https://github.com/microsoft/azure-maven-plugins and https://github.com/microsoft/azure-tools-for-java repositories
-  ENDGAME_VERSION: endgame-202407
-
 jobs:
 
   # Prepare environment and build the plugin
