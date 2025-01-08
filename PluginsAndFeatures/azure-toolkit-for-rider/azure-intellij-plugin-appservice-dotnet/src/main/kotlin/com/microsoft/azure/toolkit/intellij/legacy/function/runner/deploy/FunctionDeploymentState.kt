@@ -14,7 +14,7 @@ import com.jetbrains.rider.model.PublishableProjectModel
 import com.jetbrains.rider.model.publishableProjectsModel
 import com.jetbrains.rider.projectView.solution
 import com.microsoft.azure.toolkit.intellij.appservice.DotNetAppServiceDeployer
-import com.microsoft.azure.toolkit.intellij.appservice.DotNetRuntimeConfig
+import com.microsoft.azure.toolkit.intellij.appservice.dotnetRuntime.DotNetRuntimeConfig
 import com.microsoft.azure.toolkit.intellij.appservice.functionapp.CreateDotNetFunctionAppTask
 import com.microsoft.azure.toolkit.intellij.appservice.functionapp.DotNetFunctionAppConfig
 import com.microsoft.azure.toolkit.intellij.appservice.functionapp.DotNetFunctionAppDeploymentSlotDraft

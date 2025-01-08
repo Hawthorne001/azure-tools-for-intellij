@@ -4,6 +4,8 @@
 
 package com.microsoft.azure.toolkit.intellij.appservice
 
+import com.microsoft.azure.toolkit.intellij.appservice.dotnetRuntime.DotNetRuntime
+import com.microsoft.azure.toolkit.intellij.appservice.dotnetRuntime.DotNetRuntimeConfig
 import com.microsoft.azure.toolkit.intellij.common.RiderRunProcessHandlerMessager
 import com.microsoft.azure.toolkit.lib.appservice.AppServiceAppBase
 import com.microsoft.azure.toolkit.lib.appservice.model.DockerConfiguration

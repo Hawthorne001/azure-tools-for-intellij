@@ -1,8 +1,8 @@
 /*
- * Copyright 2018-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the MIT license.
+ * Copyright 2018-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the MIT license.
  */
 
-package com.microsoft.azure.toolkit.intellij.appservice
+package com.microsoft.azure.toolkit.intellij.appservice.dotnetRuntime
 
 import com.azure.resourcemanager.appservice.models.FunctionRuntimeStack
 import com.azure.resourcemanager.appservice.models.NetFrameworkVersion
