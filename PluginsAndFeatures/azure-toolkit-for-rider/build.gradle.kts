@@ -24,6 +24,14 @@ version = providers.gradleProperty("pluginVersion").get()
 
 val platformVersion by extra { providers.gradleProperty("platformVersion").get() }
 
+val riderSdkPath by lazy {
+    val path = intellijPlatform.platformPath.resolve("lib/DotNetSdkForRdPlugins").absolute()
+    if (!path.isDirectory()) error("$path does not exist or not a directory")
+
+    println("Rider SDK path: $path")
+    return@lazy path
+}
+
 // Set the JVM language level used to build the project.
 kotlin {
     jvmToolchain(17)
@@ -154,16 +162,8 @@ tasks {
         gradleVersion = providers.gradleProperty("gradleVersion").get()
     }
 
-    val riderSdkPath by lazy {
-        val path = intellijPlatform.platformPath.resolve("lib/DotNetSdkForRdPlugins").absolute()
-        if (!path.isDirectory()) error("$path does not exist or not a directory")
-
-        println("Rider SDK path: $path")
-        return@lazy path
-    }
-
     val generateDotNetSdkProperties by registering {
-        val dotNetSdkGeneratedPropsFile = projectDir.resolve("./build/DotNetSdkPath.Generated.props")
+        val dotNetSdkGeneratedPropsFile = projectDir.resolve("build/DotNetSdkPath.Generated.props")
         doLast {
             dotNetSdkGeneratedPropsFile.writeTextIfChanged("""
             <Project>
@@ -176,7 +176,7 @@ tasks {
     }
 
     val generateNuGetConfig by registering {
-        val nuGetConfigFile = projectDir.resolve("./src/dotnet/nuget.config")
+        val nuGetConfigFile = projectDir.resolve("nuget.config")
         doLast {
             nuGetConfigFile.writeTextIfChanged("""
             <?xml version="1.0" encoding="utf-8"?>
@@ -230,8 +230,8 @@ tasks {
             "$dotnetOutputFolder/Azure.Intellisense/bin/$dotnetBuildConfiguration/JetBrains.ReSharper.Azure.Intellisense.pdb",
             "$dotnetOutputFolder/Azure.Daemon/bin/$dotnetBuildConfiguration/JetBrains.ReSharper.Azure.Daemon.dll",
             "$dotnetOutputFolder/Azure.Daemon/bin/$dotnetBuildConfiguration/JetBrains.ReSharper.Azure.Daemon.pdb",
-            "$dotnetOutputFolder/Azure.Daemon/bin/$dotnetBuildConfiguration/NCrontab.Signed.dll",
-            "$dotnetOutputFolder/Azure.Daemon/bin/$dotnetBuildConfiguration/CronExpressionDescriptor.dll"
+//            "$dotnetOutputFolder/Azure.Daemon/bin/$dotnetBuildConfiguration/NCrontab.Signed.dll",
+//            "$dotnetOutputFolder/Azure.Daemon/bin/$dotnetBuildConfiguration/CronExpressionDescriptor.dll"
         )
 
         for (f in dllFiles) {

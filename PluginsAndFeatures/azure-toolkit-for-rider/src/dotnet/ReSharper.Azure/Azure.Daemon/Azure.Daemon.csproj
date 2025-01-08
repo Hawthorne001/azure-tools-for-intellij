@@ -5,7 +5,7 @@
         <AssemblyName>JetBrains.ReSharper.Azure.Daemon</AssemblyName>
     </PropertyGroup>
 
-    <Import Project="$(JetBrainsRiderRdBackendCommonReference)" Condition="Exists('$(JetBrainsRiderRdBackendCommonReference)')" />
+    <Import Project="$(JetBrainsRiderBackendReference)" Condition="Exists('$(JetBrainsRiderBackendReference)')" />
 
     <ItemGroup>
         <PackageReference Include="CronExpressionDescriptor" Version="2.36.0" />

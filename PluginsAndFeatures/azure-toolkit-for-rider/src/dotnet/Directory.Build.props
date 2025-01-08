@@ -23,5 +23,6 @@
 
   <PropertyGroup>
     <JetBrainsRiderRdBackendCommonReference>$(DotNetSdkPath)\Build\PackageReference.JetBrains.Rider.RdBackend.Common.Props</JetBrainsRiderRdBackendCommonReference>
+    <JetBrainsRiderBackendReference>$(DotNetSdkPath)\Build\PackageReference.JetBrains.Rider.Rider.Backend.Props</JetBrainsRiderBackendReference>
   </PropertyGroup>
 </Project>
