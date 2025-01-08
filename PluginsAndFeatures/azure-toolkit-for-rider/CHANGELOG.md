@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- AppService ComboBox render logic
+
 ## [4.3.8] - 2024-12-17
 
 ### Fixed
