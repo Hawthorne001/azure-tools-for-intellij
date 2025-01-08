@@ -14,11 +14,12 @@ import java.io.File
 import java.util.concurrent.ConcurrentHashMap
 
 @Service(Service.Level.PROJECT)
-class FunctionLaunchProfilesService {
+class FunctionLaunchProfilesService(private val project: Project) {
     companion object {
         fun getInstance(project: Project): FunctionLaunchProfilesService = project.service()
     }
 
+    private val launchSettingsService get() = LaunchSettingsJsonService.getInstance(project)
     private val cache = ConcurrentHashMap<String, Pair<Long, List<LaunchProfile>>>()
 
     fun initialize(runnableProjects: List<RunnableProject>) {
@@ -49,7 +50,7 @@ class FunctionLaunchProfilesService {
         getLaunchProfiles(runnableProject).find { it.name == launchProfileName }
 
     private fun getLaunchProfiles(launchSettingsFile: File): List<LaunchProfile> {
-        val launchSettings = LaunchSettingsJsonService.loadLaunchSettings(launchSettingsFile)
+        val launchSettings = launchSettingsService.loadLaunchSettings(launchSettingsFile)
             ?: return emptyList()
 
         return launchSettings

@@ -1,5 +1,3 @@
-import org.jetbrains.intellij.platform.gradle.extensions.intellijPlatform
-
 plugins {
     alias(libs.plugins.kotlin)
     id("org.jetbrains.intellij.platform.module")
@@ -20,6 +18,5 @@ dependencies {
     intellijPlatform {
         rider(platformVersion, false)
         jetbrainsRuntime()
-        instrumentationTools()
     }
 }
