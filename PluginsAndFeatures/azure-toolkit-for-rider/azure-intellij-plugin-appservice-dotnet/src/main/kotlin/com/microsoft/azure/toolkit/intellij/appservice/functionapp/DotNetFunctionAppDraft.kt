@@ -4,8 +4,8 @@
 
 package com.microsoft.azure.toolkit.intellij.appservice.functionapp
 
-import com.microsoft.azure.toolkit.intellij.appservice.DotNetRuntime
-import com.microsoft.azure.toolkit.intellij.appservice.getDotNetRuntime
+import com.microsoft.azure.toolkit.intellij.appservice.dotnetRuntime.DotNetRuntime
+import com.microsoft.azure.toolkit.intellij.appservice.dotnetRuntime.getDotNetRuntime
 import com.microsoft.azure.toolkit.lib.appservice.function.FunctionApp
 import com.microsoft.azure.toolkit.lib.appservice.function.FunctionAppModule
 import com.microsoft.azure.toolkit.lib.appservice.model.DiagnosticConfig
