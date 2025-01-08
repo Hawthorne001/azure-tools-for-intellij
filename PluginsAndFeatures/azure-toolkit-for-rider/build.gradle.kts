@@ -203,7 +203,7 @@ tasks {
         doLast {
             exec {
                 executable("dotnet")
-                args("build", "-c", dotnetBuildConfiguration, "/clp:ErrorsOnly", "ReSharper.Azure.sln")
+                args("publish", "-c", dotnetBuildConfiguration, "/clp:ErrorsOnly", "ReSharper.Azure.sln")
             }
         }
     }
@@ -230,8 +230,8 @@ tasks {
             "$dotnetOutputFolder/Azure.Intellisense/bin/$dotnetBuildConfiguration/JetBrains.ReSharper.Azure.Intellisense.pdb",
             "$dotnetOutputFolder/Azure.Daemon/bin/$dotnetBuildConfiguration/JetBrains.ReSharper.Azure.Daemon.dll",
             "$dotnetOutputFolder/Azure.Daemon/bin/$dotnetBuildConfiguration/JetBrains.ReSharper.Azure.Daemon.pdb",
-//            "$dotnetOutputFolder/Azure.Daemon/bin/$dotnetBuildConfiguration/NCrontab.Signed.dll",
-//            "$dotnetOutputFolder/Azure.Daemon/bin/$dotnetBuildConfiguration/CronExpressionDescriptor.dll"
+            "$dotnetOutputFolder/Azure.Daemon/bin/$dotnetBuildConfiguration/NCrontab.Signed.dll",
+            "$dotnetOutputFolder/Azure.Daemon/bin/$dotnetBuildConfiguration/CronExpressionDescriptor.dll"
         )
 
         for (f in dllFiles) {

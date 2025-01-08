@@ -6,6 +6,7 @@
 
     <NoWarn>NU1701</NoWarn>
 
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <NoPackageAnalysis>true</NoPackageAnalysis>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
