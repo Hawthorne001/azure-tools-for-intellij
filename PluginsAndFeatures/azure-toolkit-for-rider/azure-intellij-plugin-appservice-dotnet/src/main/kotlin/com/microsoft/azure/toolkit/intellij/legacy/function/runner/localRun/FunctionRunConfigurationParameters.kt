@@ -4,6 +4,7 @@ import com.intellij.execution.configuration.EnvironmentVariablesComponent
 import com.intellij.execution.configurations.RuntimeConfigurationError
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.JDOMExternalizerUtil
+import com.jetbrains.rd.util.reactive.hasTrueValue
 import com.jetbrains.rider.model.runnableProjectsModel
 import com.jetbrains.rider.projectView.solution
 import com.jetbrains.rider.run.RiderRunBundle
@@ -62,17 +63,27 @@ class FunctionRunConfigurationParameters(
     }
 
     fun validate() {
-        if (project.solution.isLoaded.valueOrNull != true) {
-            throw RuntimeConfigurationError("Solution is loading, please wait for a few seconds.")
-        }
-
-        val runnableProjects = project.solution.runnableProjectsModel.projects.valueOrNull
-        if (project.solution.isLoaded.valueOrNull != true || runnableProjects == null) {
+        if (!project.solution.isLoaded.hasTrueValue) {
             throw RuntimeConfigurationError(DotNetProjectConfigurationParameters.SOLUTION_IS_LOADING)
+        }
+        val runnableProjects = project.solution.runnableProjectsModel.projects.valueOrNull
+            ?: throw RuntimeConfigurationError(DotNetProjectConfigurationParameters.SOLUTION_IS_LOADING)
+
+        if (projectFilePath.isEmpty()) {
+            throw RuntimeConfigurationError(DotNetProjectConfigurationParameters.PROJECT_NOT_SPECIFIED)
         }
         val project = runnableProjects.singleOrNull {
             it.projectFilePath == projectFilePath && it.kind == AzureRunnableProjectKinds.AzureFunctions
-        } ?: throw RuntimeConfigurationError(DotNetProjectConfigurationParameters.PROJECT_NOT_SPECIFIED)
+        } ?: throw RuntimeConfigurationError(RiderRunBundle.message("selected.project.not.found"))
+
+        if (projectTfm.isEmpty()) {
+            throw RuntimeConfigurationError(RiderRunBundle.message("dialog.message.target.framework.is.not.specified"))
+        }
+
+        if (profileName.isEmpty()) {
+            throw RuntimeConfigurationError(RiderRunBundle.message("launch.profile.is.not.specified"))
+        }
+
         if (!trackWorkingDirectory) {
             val workingDirectoryFile = File(workingDirectory)
             if (!workingDirectoryFile.exists() || !workingDirectoryFile.isDirectory)
@@ -83,6 +94,7 @@ class FunctionRunConfigurationParameters(
                     )
                 )
         }
+
         if (!project.problems.isNullOrEmpty()) {
             throw RuntimeConfigurationError(project.problems)
         }
