@@ -76,14 +76,6 @@ class FunctionRunConfigurationParameters(
             it.projectFilePath == projectFilePath && it.kind == AzureRunnableProjectKinds.AzureFunctions
         } ?: throw RuntimeConfigurationError(RiderRunBundle.message("selected.project.not.found"))
 
-        if (projectTfm.isEmpty()) {
-            throw RuntimeConfigurationError(RiderRunBundle.message("dialog.message.target.framework.is.not.specified"))
-        }
-
-        if (profileName.isEmpty()) {
-            throw RuntimeConfigurationError(RiderRunBundle.message("launch.profile.is.not.specified"))
-        }
-
         if (!trackWorkingDirectory) {
             val workingDirectoryFile = File(workingDirectory)
             if (!workingDirectoryFile.exists() || !workingDirectoryFile.isDirectory)
