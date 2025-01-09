@@ -48,7 +48,7 @@ import com.microsoft.azure.toolkit.intellij.legacy.function.launchProfiles.*
 import com.microsoft.azure.toolkit.intellij.legacy.function.localsettings.FunctionLocalSettings
 import com.microsoft.azure.toolkit.intellij.legacy.function.localsettings.FunctionLocalSettingsService
 import com.microsoft.azure.toolkit.intellij.legacy.function.localsettings.FunctionWorkerRuntime
-import com.microsoft.azure.toolkit.intellij.legacy.utils.getProjectLaunchProfileByName
+import com.microsoft.azure.toolkit.intellij.legacy.function.launchProfiles.getProjectLaunchProfileByName
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File

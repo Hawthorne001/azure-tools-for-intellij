@@ -28,7 +28,7 @@ import com.microsoft.azure.toolkit.intellij.legacy.function.launchProfiles.getEn
 import com.microsoft.azure.toolkit.intellij.legacy.function.launchProfiles.getWorkingDirectory
 import com.microsoft.azure.toolkit.intellij.legacy.function.localsettings.FunctionLocalSettings
 import com.microsoft.azure.toolkit.intellij.legacy.function.localsettings.FunctionLocalSettingsService
-import com.microsoft.azure.toolkit.intellij.legacy.utils.getProjectLaunchProfileByName
+import com.microsoft.azure.toolkit.intellij.legacy.function.launchProfiles.getProjectLaunchProfileByName
 
 class FunctionRunConfigurationType : ConfigurationTypeBase(
     ID,
