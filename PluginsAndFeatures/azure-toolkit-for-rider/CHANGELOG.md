@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Support for Rider 2025.1
+
 ### Fixed
 
 - AppService ComboBox render logic
