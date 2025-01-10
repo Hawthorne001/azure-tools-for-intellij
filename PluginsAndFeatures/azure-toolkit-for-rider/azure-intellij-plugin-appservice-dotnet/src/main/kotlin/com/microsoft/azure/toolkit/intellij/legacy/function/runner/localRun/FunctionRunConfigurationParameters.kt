@@ -5,12 +5,20 @@ import com.intellij.execution.configurations.RuntimeConfigurationError
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.JDOMExternalizerUtil
 import com.jetbrains.rd.util.reactive.hasTrueValue
+import com.jetbrains.rider.model.ProjectOutput
+import com.jetbrains.rider.model.RunnableProject
 import com.jetbrains.rider.model.runnableProjectsModel
 import com.jetbrains.rider.projectView.solution
 import com.jetbrains.rider.run.RiderRunBundle
+import com.jetbrains.rider.run.configurations.controls.LaunchProfile
 import com.jetbrains.rider.run.configurations.project.DotNetProjectConfigurationParameters
 import com.jetbrains.rider.run.configurations.project.DotNetStartBrowserParameters
 import com.microsoft.azure.toolkit.intellij.legacy.function.daemon.AzureRunnableProjectKinds
+import com.microsoft.azure.toolkit.intellij.legacy.function.launchProfiles.getApplicationUrl
+import com.microsoft.azure.toolkit.intellij.legacy.function.launchProfiles.getArguments
+import com.microsoft.azure.toolkit.intellij.legacy.function.launchProfiles.getEnvironmentVariables
+import com.microsoft.azure.toolkit.intellij.legacy.function.launchProfiles.getWorkingDirectory
+import com.microsoft.azure.toolkit.intellij.legacy.function.localsettings.FunctionLocalSettings
 import org.jdom.Element
 import java.io.File
 
@@ -145,4 +153,29 @@ class FunctionRunConfigurationParameters(
         trackUrl,
         startBrowserParameters.copy()
     )
+
+    fun setUpFromRunnableProject(
+        runnableProject: RunnableProject,
+        projectOutput: ProjectOutput?,
+        launchProfile: LaunchProfile?,
+        functionName: String? = null,
+        localFunctionSettings: FunctionLocalSettings? = null
+    ) {
+        projectFilePath = runnableProject.projectFilePath
+        projectTfm = projectOutput?.tfm?.presentableName ?: ""
+        profileName = launchProfile?.name ?: ""
+        functionNames = if (functionName.isNullOrEmpty()) "" else functionName
+        trackArguments = true
+        arguments = getArguments(launchProfile?.content, projectOutput)
+        trackWorkingDirectory = true
+        workingDirectory = getWorkingDirectory(launchProfile?.content, projectOutput)
+        trackEnvs = true
+        envs = getEnvironmentVariables(launchProfile?.content)
+        useExternalConsole = false
+        trackUrl = true
+        startBrowserParameters.apply {
+            url = getApplicationUrl(launchProfile?.content, projectOutput, localFunctionSettings)
+            startAfterLaunch = launchProfile?.content?.launchBrowser == true
+        }
+    }
 }

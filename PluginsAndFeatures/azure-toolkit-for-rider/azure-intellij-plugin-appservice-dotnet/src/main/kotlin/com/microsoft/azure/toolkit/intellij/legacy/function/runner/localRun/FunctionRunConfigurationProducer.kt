@@ -12,17 +12,13 @@ import com.intellij.openapi.util.Ref
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.io.systemIndependentPath
 import com.intellij.psi.PsiElement
-import com.jetbrains.rd.util.firstOrNull
 import com.jetbrains.rider.model.runnableProjectsModel
 import com.jetbrains.rider.projectView.solution
 import com.jetbrains.rider.projectView.workspace.getFile
 import com.jetbrains.rider.run.configurations.getSelectedProject
 import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJsonService
 import com.microsoft.azure.toolkit.intellij.legacy.function.daemon.AzureRunnableProjectKinds
-import com.microsoft.azure.toolkit.intellij.legacy.function.launchProfiles.getApplicationUrl
-import com.microsoft.azure.toolkit.intellij.legacy.function.launchProfiles.getArguments
-import com.microsoft.azure.toolkit.intellij.legacy.function.launchProfiles.getEnvironmentVariables
-import com.microsoft.azure.toolkit.intellij.legacy.function.launchProfiles.getWorkingDirectory
+import com.microsoft.azure.toolkit.intellij.legacy.function.launchProfiles.*
 
 class FunctionRunConfigurationProducer : LazyRunConfigurationProducer<FunctionRunConfiguration>() {
     override fun getConfigurationFactory() =
@@ -70,28 +66,13 @@ class FunctionRunConfigurationProducer : LazyRunConfigurationProducer<FunctionRu
             .firstOrNull()
         val profile = LaunchSettingsJsonService
             .getInstance(context.project)
-            .loadLaunchSettings(runnableProject)
-            ?.profiles
-            ?.firstOrNull()
+            .getFirstOrNullLaunchProfileProfile(runnableProject)
 
-        configuration.parameters.apply {
-            projectFilePath = selectedProjectFilePath
-            projectTfm = projectOutput?.tfm?.presentableName ?: ""
-            profileName = profile?.key ?: ""
-            functionNames = ""
-            trackArguments = true
-            arguments = getArguments(profile?.value, projectOutput)
-            trackWorkingDirectory = true
-            workingDirectory = getWorkingDirectory(profile?.value, projectOutput)
-            trackEnvs = true
-            envs = getEnvironmentVariables(profile?.value)
-            useExternalConsole = false
-            trackUrl = true
-            startBrowserParameters.apply {
-                url = getApplicationUrl(profile?.value, projectOutput, null)
-                startAfterLaunch = profile?.value?.launchBrowser == true
-            }
-        }
+        configuration.parameters.setUpFromRunnableProject(
+            runnableProject,
+            projectOutput,
+            profile
+        )
 
         return true
     }

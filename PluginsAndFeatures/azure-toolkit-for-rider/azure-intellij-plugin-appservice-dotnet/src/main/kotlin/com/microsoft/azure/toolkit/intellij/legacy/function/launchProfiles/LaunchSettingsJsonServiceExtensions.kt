@@ -10,14 +10,31 @@ import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJsonS
 import kotlin.collections.asSequence
 import kotlin.collections.component1
 import kotlin.collections.component2
-import kotlin.collections.orEmpty
+
+fun LaunchSettingsJsonService.getFirstOrNullLaunchProfileProfile(runnableProject: RunnableProject): LaunchProfile? {
+    val profiles = loadLaunchSettings(runnableProject)?.profiles ?: return null
+
+    return profiles
+        .asSequence()
+        .filter { it.value.commandName.equals("Project", true) }
+        .firstOrNull()
+        ?.let { LaunchProfile(it.key, it.value) }
+}
+
+suspend fun LaunchSettingsJsonService.getFirstOrNullLaunchProfileProfileSuspend(runnableProject: RunnableProject): LaunchProfile? {
+    val profiles = loadLaunchSettingsSuspend(runnableProject)?.profiles ?: return null
+
+    return profiles
+        .asSequence()
+        .filter { it.value.commandName.equals("Project", true) }
+        .firstOrNull()
+        ?.let { LaunchProfile(it.key, it.value) }
+}
 
 suspend fun LaunchSettingsJsonService.getProjectLaunchProfiles(runnableProject: RunnableProject): List<LaunchProfile> {
-    val launchSettings = loadLaunchSettingsSuspend(runnableProject) ?: return emptyList()
+    val profiles = loadLaunchSettingsSuspend(runnableProject)?.profiles ?: return emptyList()
 
-    return launchSettings
-        .profiles
-        .orEmpty()
+    return profiles
         .asSequence()
         .filter { it.value.commandName.equals("Project", true) }
         .map { (name, content) -> LaunchProfile(name, content) }
@@ -29,11 +46,9 @@ suspend fun LaunchSettingsJsonService.getProjectLaunchProfileByName(
     runnableProject: RunnableProject,
     launchProfileName: String?
 ): LaunchProfile? {
-    val launchSettings = loadLaunchSettingsSuspend(runnableProject) ?: return null
+    val profiles = loadLaunchSettingsSuspend(runnableProject)?.profiles ?: return null
 
-    return launchSettings
-        .profiles
-        .orEmpty()
+    return profiles
         .asSequence()
         .filter { it.value.commandName.equals("Project", true) }
         .firstOrNull { it.key == launchProfileName }
