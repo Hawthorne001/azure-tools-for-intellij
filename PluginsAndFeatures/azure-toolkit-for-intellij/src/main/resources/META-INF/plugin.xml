@@ -2,7 +2,7 @@
              xmlns:xi="http://www.w3.org/2001/XInclude">
   <id>com.microsoft.tooling.msservices.intellij.azure</id>
   <name>Azure Toolkit for IntelliJ</name>
-  <version>3.92.0</version>
+  <version>3.94.0</version>
   <vendor email="java@microsoft.com" url="http://www.microsoft.com">Microsoft</vendor>
 
   <description><![CDATA[
@@ -27,11 +27,9 @@
   <change-notes>
     <![CDATA[
     <html>
-      <h2 id="3-92-0">3.92.0</h2>
+      <h2 id="3-94-0">3.94.0</h2>
       <ul>
-      <li>Added Managed identity support for Azure Functions.</li>
-      <li>Fixed <a href="https://github.com/microsoft/azure-tools-for-java/issues/8473">#8473</a>: Class initialization must not depend on services. Consider using instance of the service on-demand instead.</li>
-      <li>Fixed <a href="https://github.com/microsoft/azure-tools-for-java/issues/8497">#8497</a>: fix support for swap.</li>
+      <li>Fix some known issues.</li>
       </ul>
       <p>You may get the full change log <a href="https://github.com/Microsoft/azure-tools-for-java/blob/develop/CHANGELOG.md">here</a></p>
     </html>
@@ -81,6 +79,8 @@
   <xi:include href="/META-INF/azure-intellij-plugin-synapse.xml" xpointer="xpointer(/idea-plugin/*)"/>
   <xi:include href="/META-INF/azure-intellij-plugin-hdinsight-base.xml" xpointer="xpointer(/idea-plugin/*)"/>
   <xi:include href="/META-INF/azure-intellij-plugin-integration-services.xml" xpointer="xpointer(/idea-plugin/*)"/>
+  <xi:include href="/META-INF/azure-intellij-plugin-java-sdk.xml" xpointer="xpointer(/idea-plugin/*)"/>
+  <xi:include href="/META-INF/azure-intellij-plugin-cloud-shell.xml" xpointer="xpointer(/idea-plugin/*)"/>
   <!-- please see https://confluence.jetbrains.com/display/IDEADEV/Plugin+Compatibility+with+IntelliJ+Platform+Products
        on how to target different products -->
   <!-- uncomment to enable plugin in all products
@@ -154,6 +154,8 @@
       <reference ref="AzureToolkit.ValidateCertificate"/>
       <separator/>
       <reference ref="user/sdk.OpenSdkReferenceBook"/>
+      <separator/>
+      <reference ref="AzureToolkit.CloudShell.Group"/>
       <separator/>
       <reference ref="AzureToolkit.ViewDevBlogs"/>
       <reference ref="AzureToolkit.ViewToolingDocument"/>

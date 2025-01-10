@@ -5,7 +5,7 @@
 package com.microsoft.azure.toolkit.intellij.legacy.webapp.runner.webAppContainer
 
 import com.intellij.openapi.project.Project
-import com.microsoft.azure.toolkit.intellij.appservice.DotNetRuntimeConfig
+import com.microsoft.azure.toolkit.intellij.appservice.dotnetRuntime.DotNetRuntimeConfig
 import com.microsoft.azure.toolkit.intellij.appservice.webapp.CreateDotNetWebAppTask
 import com.microsoft.azure.toolkit.intellij.appservice.webapp.DotNetAppServiceConfig
 import com.microsoft.azure.toolkit.intellij.common.RunProcessHandler

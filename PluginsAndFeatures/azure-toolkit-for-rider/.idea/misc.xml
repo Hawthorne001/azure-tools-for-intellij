@@ -4,6 +4,7 @@
   <component name="FrameworkDetectionExcludesConfiguration">
     <file type="web" url="file://$PROJECT_DIR$/../azure-toolkit-for-intellij/azure-intellij-plugin-appservice" />
     <file type="web" url="file://$PROJECT_DIR$/../azure-toolkit-for-intellij/azure-intellij-plugin-arm" />
+    <file type="web" url="file://$PROJECT_DIR$/../azure-toolkit-for-intellij/azure-intellij-plugin-cloud-shell" />
     <file type="web" url="file://$PROJECT_DIR$/../azure-toolkit-for-intellij/azure-intellij-plugin-database" />
     <file type="web" url="file://$PROJECT_DIR$/../azure-toolkit-for-intellij/azure-intellij-plugin-eventhubs" />
     <file type="web" url="file://$PROJECT_DIR$/../azure-toolkit-for-intellij/azure-intellij-plugin-guidance" />

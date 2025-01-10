@@ -14,6 +14,8 @@ import com.intellij.execution.configurations.ConfigurationTypeUtil
 import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.openapi.actionSystem.ActionPlaces
+import com.intellij.openapi.actionSystem.ActionUiKind
+import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.ex.ActionUtil
 import com.intellij.openapi.actionSystem.impl.SimpleDataContext
 import com.intellij.openapi.client.ClientProjectSession
@@ -21,21 +23,22 @@ import com.intellij.openapi.project.Project
 import com.jetbrains.rd.protocol.SolutionExtListener
 import com.jetbrains.rd.ui.bedsl.extensions.valueOrEmpty
 import com.jetbrains.rd.util.lifetime.Lifetime
+import com.jetbrains.rd.util.threading.coroutines.adviseSuspend
 import com.jetbrains.rider.azure.model.FunctionAppDaemonModel
 import com.jetbrains.rider.model.RunnableProject
 import com.jetbrains.rider.model.runnableProjectsModel
 import com.jetbrains.rider.projectView.solution
+import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJsonService
 import com.microsoft.azure.toolkit.intellij.legacy.function.actions.TriggerAzureFunctionAction
-import com.microsoft.azure.toolkit.intellij.legacy.function.launchProfiles.*
-import com.microsoft.azure.toolkit.intellij.legacy.function.launchProfiles.getApplicationUrl
-import com.microsoft.azure.toolkit.intellij.legacy.function.launchProfiles.getArguments
-import com.microsoft.azure.toolkit.intellij.legacy.function.launchProfiles.getEnvironmentVariables
-import com.microsoft.azure.toolkit.intellij.legacy.function.launchProfiles.getWorkingDirectory
-import com.microsoft.azure.toolkit.intellij.legacy.function.runner.localRun.*
+import com.microsoft.azure.toolkit.intellij.legacy.function.launchProfiles.getFirstOrNullLaunchProfileProfileSuspend
+import com.microsoft.azure.toolkit.intellij.legacy.function.runner.localRun.FunctionRunConfiguration
+import com.microsoft.azure.toolkit.intellij.legacy.function.runner.localRun.FunctionRunConfigurationFactory
+import com.microsoft.azure.toolkit.intellij.legacy.function.runner.localRun.FunctionRunConfigurationType
+import kotlinx.coroutines.Dispatchers
 
 class FunctionAppSolutionExtListener : SolutionExtListener<FunctionAppDaemonModel> {
     override fun extensionCreated(lifetime: Lifetime, session: ClientProjectSession, model: FunctionAppDaemonModel) {
-        model.runFunctionApp.advise(lifetime) {
+        model.runFunctionApp.adviseSuspend(lifetime, Dispatchers.Main) {
             runConfiguration(
                 functionName = it.functionName,
                 runnableProject = getRunnableProject(session.project, it.projectFilePath),
@@ -43,7 +46,7 @@ class FunctionAppSolutionExtListener : SolutionExtListener<FunctionAppDaemonMode
                 project = session.project
             )
         }
-        model.debugFunctionApp.advise(lifetime) {
+        model.debugFunctionApp.adviseSuspend(lifetime, Dispatchers.Main) {
             runConfiguration(
                 functionName = it.functionName,
                 runnableProject = getRunnableProject(session.project, it.projectFilePath),
@@ -57,11 +60,17 @@ class FunctionAppSolutionExtListener : SolutionExtListener<FunctionAppDaemonMode
                 triggerType = it.triggerType,
                 httpTriggerAttribute = it.httpTriggerAttribute
             )
-            ActionUtil.invokeAction(
+            val actionEvent = AnActionEvent.createEvent(
                 triggerAction,
                 SimpleDataContext.getProjectContext(session.project),
-                ActionPlaces.EDITOR_GUTTER_POPUP,
                 null,
+                ActionPlaces.EDITOR_GUTTER_POPUP,
+                ActionUiKind.POPUP,
+                null
+            )
+            ActionUtil.invokeAction(
+                triggerAction,
+                actionEvent,
                 null
             )
         }
@@ -78,7 +87,7 @@ class FunctionAppSolutionExtListener : SolutionExtListener<FunctionAppDaemonMode
             )
     }
 
-    private fun runConfiguration(
+    private suspend fun runConfiguration(
         functionName: String?,
         runnableProject: RunnableProject,
         executor: Executor,
@@ -121,7 +130,7 @@ class FunctionAppSolutionExtListener : SolutionExtListener<FunctionAppDaemonMode
         }
     }
 
-    private fun createFunctionAppRunConfiguration(
+    private suspend fun createFunctionAppRunConfiguration(
         project: Project,
         functionName: String?,
         runnableProject: RunnableProject
@@ -143,35 +152,22 @@ class FunctionAppSolutionExtListener : SolutionExtListener<FunctionAppDaemonMode
         return configuration
     }
 
-    private fun patchConfigurationParameters(
+    private suspend fun patchConfigurationParameters(
         project: Project,
         configuration: FunctionRunConfiguration,
         runnableProject: RunnableProject,
         functionName: String?
     ) {
         val projectOutput = runnableProject.projectOutputs.firstOrNull()
-        val launchProfile = FunctionLaunchProfilesService
+        val launchProfile = LaunchSettingsJsonService
             .getInstance(project)
-            .getLaunchProfiles(runnableProject)
-            .firstOrNull()
+            .getFirstOrNullLaunchProfileProfileSuspend(runnableProject)
 
-        configuration.parameters.apply {
-            projectFilePath = runnableProject.projectFilePath
-            projectTfm = projectOutput?.tfm?.presentableName ?: ""
-            profileName = launchProfile?.name ?: ""
-            functionNames =  if (functionName.isNullOrEmpty()) "" else functionName
-            trackArguments = true
-            arguments = getArguments(launchProfile?.content, projectOutput)
-            trackWorkingDirectory = true
-            workingDirectory = getWorkingDirectory(launchProfile?.content, projectOutput)
-            trackEnvs = true
-            envs = getEnvironmentVariables(launchProfile?.content)
-            useExternalConsole = false
-            trackUrl = true
-            startBrowserParameters.apply {
-                url = getApplicationUrl(launchProfile?.content, projectOutput, null)
-                startAfterLaunch = launchProfile?.content?.launchBrowser ?: false
-            }
-        }
+        configuration.parameters.setUpFromRunnableProject(
+            runnableProject,
+            projectOutput,
+            launchProfile,
+            functionName
+        )
     }
 }

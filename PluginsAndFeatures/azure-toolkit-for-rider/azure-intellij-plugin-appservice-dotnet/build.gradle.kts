@@ -20,9 +20,7 @@ dependencies {
     intellijPlatform {
         rider(platformVersion, false)
         jetbrainsRuntime()
-        bundledModule("intellij.rider")
         bundledPlugins(listOf("com.jetbrains.restClient"))
-        instrumentationTools()
     }
 
     implementation(libs.azureToolkitAuthLib)

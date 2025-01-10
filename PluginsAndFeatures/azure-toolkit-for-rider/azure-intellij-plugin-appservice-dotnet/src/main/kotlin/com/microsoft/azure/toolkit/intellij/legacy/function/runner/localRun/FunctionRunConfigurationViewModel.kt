@@ -4,9 +4,14 @@
 
 package com.microsoft.azure.toolkit.intellij.legacy.function.runner.localRun
 
+import com.intellij.openapi.application.EDT
+import com.intellij.openapi.application.ModalityState
+import com.intellij.openapi.application.asContextElement
 import com.intellij.openapi.project.Project
 import com.jetbrains.rd.util.lifetime.Lifetime
-import com.jetbrains.rd.util.reactive.adviseOnce
+import com.jetbrains.rd.util.lifetime.SequentialLifetimes
+import com.jetbrains.rd.util.threading.coroutines.launch
+import com.jetbrains.rd.util.threading.coroutines.nextNotNullValue
 import com.jetbrains.rider.model.ProjectOutput
 import com.jetbrains.rider.model.RunnableProject
 import com.jetbrains.rider.model.RunnableProjectsModel
@@ -15,6 +20,7 @@ import com.jetbrains.rider.run.configurations.controls.*
 import com.jetbrains.rider.run.configurations.controls.startBrowser.BrowserSettings
 import com.jetbrains.rider.run.configurations.controls.startBrowser.BrowserSettingsEditor
 import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJson
+import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJsonService
 import com.jetbrains.rider.run.configurations.project.DotNetStartBrowserParameters
 import com.microsoft.azure.toolkit.intellij.legacy.function.daemon.AzureRunnableProjectKinds
 import com.microsoft.azure.toolkit.intellij.legacy.function.launchProfiles.*
@@ -25,11 +31,12 @@ import com.microsoft.azure.toolkit.intellij.legacy.function.launchProfiles.getWo
 import com.microsoft.azure.toolkit.intellij.legacy.function.localsettings.FunctionLocalSettings
 import com.microsoft.azure.toolkit.intellij.legacy.function.localsettings.FunctionLocalSettingsService
 import com.microsoft.azure.toolkit.intellij.legacy.function.localsettings.FunctionWorkerRuntime
+import kotlinx.coroutines.Dispatchers
 import java.io.File
 
 class FunctionRunConfigurationViewModel(
     private val project: Project,
-    private val lifetime: Lifetime,
+    lifetime: Lifetime,
     private val runnableProjectsModel: RunnableProjectsModel?,
     val projectSelector: ProjectSelector,
     val tfmSelector: StringSelector,
@@ -43,6 +50,7 @@ class FunctionRunConfigurationViewModel(
     val urlEditor: TextEditor,
     val dotNetBrowserSettingsEditor: BrowserSettingsEditor
 ) : RunConfigurationViewModelBase() {
+
     override val controls: List<ControlBase> =
         listOf(
             projectSelector,
@@ -58,6 +66,9 @@ class FunctionRunConfigurationViewModel(
             dotNetBrowserSettingsEditor
         )
 
+    private val currentEditSessionLifetimeSource = SequentialLifetimes(lifetime)
+    private var currentEditSessionLifetime = currentEditSessionLifetimeSource.next()
+
     private var isLoaded = false
 
     var trackArguments = true
@@ -71,34 +82,35 @@ class FunctionRunConfigurationViewModel(
         disable()
 
         if (runnableProjectsModel != null) {
+            val projectModelLifetimes = SequentialLifetimes(lifetime)
             projectSelector.bindTo(
                 runnableProjectsModel,
                 lifetime,
                 { p -> p.kind == AzureRunnableProjectKinds.AzureFunctions },
                 ::enable,
-                ::handleProjectSelection
+                {
+                    projectModelLifetimes.next().launch(Dispatchers.EDT + ModalityState.current().asContextElement()) {
+                        handleProjectSelection(it)
+                    }
+                }
             )
         }
 
-        tfmSelector.string.advise(lifetime) { handleChangeTfmSelection() }
-        launchProfileSelector.profile.advise(lifetime) { handleProfileSelection() }
+        tfmSelector.string.advise(lifetime) { recalculateFields() }
+        launchProfileSelector.profile.advise(lifetime) { recalculateFields() }
         programParametersEditor.parametersString.advise(lifetime) { handleArgumentsChange() }
         workingDirectorySelector.path.advise(lifetime) { handleWorkingDirectoryChange() }
         environmentVariablesEditor.envs.advise(lifetime) { handleEnvValueChange() }
         urlEditor.text.advise(lifetime) { handleUrlValueChange() }
     }
 
-    private fun handleProjectSelection(runnableProject: RunnableProject) {
+    private suspend fun handleProjectSelection(runnableProject: RunnableProject) {
         if (!isLoaded) return
 
         reloadTfmSelector(runnableProject)
         reloadLaunchProfileSelector(runnableProject)
         readLocalSettingsForProject(runnableProject)
-
-        val projectOutput = getSelectedProjectOutput()
-        val launchProfile = launchProfileSelector.profile.valueOrNull
-
-        recalculateFields(projectOutput, launchProfile?.content)
+        recalculateFields()
     }
 
     private fun reloadTfmSelector(runnableProject: RunnableProject) {
@@ -112,8 +124,12 @@ class FunctionRunConfigurationViewModel(
         }
     }
 
-    private fun reloadLaunchProfileSelector(runnableProject: RunnableProject) {
-        val launchProfiles = FunctionLaunchProfilesService.getInstance(project).getLaunchProfiles(runnableProject)
+    private suspend fun reloadLaunchProfileSelector(runnableProject: RunnableProject) {
+        launchProfileSelector.isLoading.set(true)
+
+        val launchProfiles = LaunchSettingsJsonService
+            .getInstance(project)
+            .getProjectLaunchProfiles(runnableProject)
         launchProfileSelector.profileList.apply {
             clear()
             addAll(launchProfiles)
@@ -121,6 +137,8 @@ class FunctionRunConfigurationViewModel(
         if (launchProfiles.any()) {
             launchProfileSelector.profile.set(launchProfiles.first())
         }
+
+        launchProfileSelector.isLoading.set(false)
     }
 
     private fun readLocalSettingsForProject(runnableProject: RunnableProject) {
@@ -129,44 +147,32 @@ class FunctionRunConfigurationViewModel(
             .getFunctionLocalSettings(runnableProject)
     }
 
-    private fun handleChangeTfmSelection() {
+    private fun recalculateFields() {
         if (!isLoaded) return
 
         val projectOutput = getSelectedProjectOutput()
-        val launchProfile = launchProfileSelector.profile.valueOrNull
+        val profile = launchProfileSelector.profile.valueOrNull
 
-        recalculateFields(projectOutput, launchProfile?.content)
-    }
-
-    private fun handleProfileSelection() {
-        if (!isLoaded) return
-
-        val projectOutput = getSelectedProjectOutput()
-        val launchProfile = launchProfileSelector.profile.valueOrNull
-
-        recalculateFields(projectOutput, launchProfile?.content)
-    }
-
-    private fun recalculateFields(projectOutput: ProjectOutput?, profile: LaunchSettingsJson.Profile?) {
         if (trackWorkingDirectory) {
-            val workingDirectory = getWorkingDirectory(profile, projectOutput)
+            val workingDirectory = getWorkingDirectory(profile?.content, projectOutput)
             workingDirectorySelector.path.set(workingDirectory)
             workingDirectorySelector.defaultValue.set(workingDirectory)
         }
         if (trackArguments) {
-            val arguments = getArguments(profile, projectOutput)
+            val arguments = getArguments(profile?.content, projectOutput)
             programParametersEditor.parametersString.set(arguments)
             programParametersEditor.defaultValue.set(arguments)
         }
         if (trackEnvs) {
-            val envs = getEnvironmentVariables(profile).toSortedMap()
+            val envs = getEnvironmentVariables(profile?.content).toSortedMap()
             environmentVariablesEditor.envs.set(envs)
         }
         if (trackUrl) {
-            val applicationUrl = getApplicationUrl(profile, projectOutput, functionLocalSettings)
+            val applicationUrl = getApplicationUrl(profile?.content, projectOutput, functionLocalSettings)
             urlEditor.text.value = applicationUrl
             urlEditor.defaultValue.value = applicationUrl
-            dotNetBrowserSettingsEditor.settings.value = BrowserSettings(profile?.launchBrowser == true, false, null)
+            dotNetBrowserSettingsEditor.settings.value =
+                BrowserSettings(profile?.content?.launchBrowser == true, false, null)
         }
     }
 
@@ -226,13 +232,20 @@ class FunctionRunConfigurationViewModel(
         dotNetStartBrowserParameters: DotNetStartBrowserParameters
     ) {
         isLoaded = false
+        currentEditSessionLifetime = currentEditSessionLifetimeSource.next()
 
         this.trackArguments = trackArguments
         this.trackWorkingDirectory = trackWorkingDirectory
         this.trackEnvs = trackEnvs
         this.trackUrl = trackUrl
 
-        runnableProjectsModel?.projects?.adviseOnce(lifetime) { projectList ->
+        currentEditSessionLifetime.launch(Dispatchers.EDT + ModalityState.current().asContextElement()) {
+            val projectList = runnableProjectsModel
+                ?.projects
+                ?.nextNotNullValue()
+                ?.filter { it.kind == AzureRunnableProjectKinds.AzureFunctions }
+                ?: return@launch
+
             functionNamesEditor.text.value = functionNames
             functionNamesEditor.defaultValue.value = ""
 
@@ -244,9 +257,7 @@ class FunctionRunConfigurationViewModel(
                 )
             )
 
-            if (projectFilePath.isEmpty() || projectList.none {
-                    it.projectFilePath == projectFilePath && it.kind == AzureRunnableProjectKinds.AzureFunctions
-                }) {
+            if (projectFilePath.isEmpty() || projectList.none { it.projectFilePath == projectFilePath }) {
                 if (projectFilePath.isEmpty()) {
                     addFirstFunctionProject(projectList)
                 } else {
@@ -274,7 +285,7 @@ class FunctionRunConfigurationViewModel(
         }
     }
 
-    private fun addFirstFunctionProject(projectList: List<RunnableProject>) {
+    private suspend fun addFirstFunctionProject(projectList: List<RunnableProject>) {
         val runnableProject = projectList.firstOrNull { it.kind == AzureRunnableProjectKinds.AzureFunctions }
             ?: return
         projectSelector.project.set(runnableProject)
@@ -301,7 +312,7 @@ class FunctionRunConfigurationViewModel(
         projectSelector.project.set(fakeProject)
     }
 
-    private fun addSelectedFunctionProject(
+    private suspend fun addSelectedFunctionProject(
         projectList: List<RunnableProject>,
         projectFilePath: String,
         tfm: String,
@@ -352,7 +363,7 @@ class FunctionRunConfigurationViewModel(
             launchProfileSelector.profile.set(fakeLaunchProfile)
         }
 
-        val selectedOutput = getSelectedProjectOutput() ?: return
+        val selectedOutput = getSelectedProjectOutput()
 
         val effectiveArguments =
             if (trackArguments) getArguments(selectedProfile?.content, selectedOutput)

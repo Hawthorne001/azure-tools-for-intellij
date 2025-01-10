@@ -8,8 +8,8 @@ import com.azure.core.management.exception.ManagementException
 import com.azure.resourcemanager.appservice.fluent.models.SitePatchResourceInner
 import com.azure.resourcemanager.appservice.models.FunctionApp
 import com.azure.resourcemanager.appservice.models.FunctionDeploymentSlot
-import com.microsoft.azure.toolkit.intellij.appservice.DotNetRuntime
-import com.microsoft.azure.toolkit.intellij.appservice.getDotNetRuntime
+import com.microsoft.azure.toolkit.intellij.appservice.dotnetRuntime.DotNetRuntime
+import com.microsoft.azure.toolkit.intellij.appservice.dotnetRuntime.getDotNetRuntime
 import com.microsoft.azure.toolkit.lib.appservice.function.FunctionAppDeploymentSlot
 import com.microsoft.azure.toolkit.lib.appservice.function.FunctionAppDeploymentSlotModule
 import com.microsoft.azure.toolkit.lib.appservice.model.DiagnosticConfig

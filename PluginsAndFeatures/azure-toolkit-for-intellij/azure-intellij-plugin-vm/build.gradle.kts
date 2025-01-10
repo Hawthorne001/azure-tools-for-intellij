@@ -20,7 +20,6 @@ dependencies {
     intellijPlatform {
         rider(platformVersion, false)
         jetbrainsRuntime()
-        instrumentationTools()
         bundledPlugins(listOf("org.jetbrains.plugins.remote-run", "com.jetbrains.plugins.webDeployment" ,"org.jetbrains.plugins.terminal"))
     }
 

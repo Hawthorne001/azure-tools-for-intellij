@@ -8,6 +8,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.dsl.builder.Cell
 import com.intellij.ui.dsl.builder.Row
+import com.microsoft.azure.toolkit.intellij.appservice.components.AppServiceComboBoxDotNetRender
 import com.microsoft.azure.toolkit.intellij.legacy.appservice.AppServiceComboBox
 import com.microsoft.azure.toolkit.lib.Azure
 import com.microsoft.azure.toolkit.lib.appservice.AppServiceAppBase
@@ -22,6 +23,10 @@ import java.util.stream.Collectors
 
 open class WebAppComboBox(project: Project) : AppServiceComboBox<AppServiceConfig>(project) {
     var targetProjectOnNetFramework: Boolean = false
+
+    init {
+        setRenderer(AppServiceComboBoxDotNetRender())
+    }
 
     override fun refreshItems() {
         Azure.az(AzureWebApp::class.java).refresh()

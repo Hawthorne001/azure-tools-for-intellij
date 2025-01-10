@@ -1,7 +1,6 @@
 // Copyright 2018-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the MIT license.
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 using CronExpressionDescriptor;
 using JetBrains.ReSharper.Azure.Daemon.Errors.FunctionAppErrors;
 using JetBrains.ReSharper.Azure.Daemon.FunctionApp.InlayHints;
@@ -91,10 +90,7 @@ public class TimerTriggerCronExpressionAnalyzer : ElementProblemAnalyzer<IAttrib
         }
     }
 
-    private static bool IsValidCrontabSchedule(
-        string literal,
-        [NotNullWhen(false)] out string? errorMessage,
-        [NotNullWhen(true)] out string? description)
+    private static bool IsValidCrontabSchedule(string literal, out string? errorMessage, out string? description)
     {
         try
         {
@@ -120,15 +116,11 @@ public class TimerTriggerCronExpressionAnalyzer : ElementProblemAnalyzer<IAttrib
         }
     }
 
-    private static bool IsValidTimeSpanSchedule(
-        string literal,
-        [NotNullWhen(false)] out string? errorMessage,
-        [NotNullWhen(true)] out string? description)
+    private static bool IsValidTimeSpanSchedule(string literal, out string? errorMessage, out string? description)
     {
         // See https://github.com/Azure/azure-webjobs-sdk-extensions/blob/dev/src/WebJobs.Extensions/Extensions/Timers/Scheduling/TimerSchedule.cs#L77
         try
         {
-            // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
             var timeSpan = TimeSpan.Parse(literal);
             errorMessage = null;
             description = $"Every {timeSpan.ToFriendlyString()}";
@@ -154,7 +146,7 @@ public class TimerTriggerCronExpressionAnalyzer : ElementProblemAnalyzer<IAttrib
     {
         var numberOfFields = cronSchedule.Trim()
             .Replace(@"\t", " ")
-            .Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)
+            .Split([' '], StringSplitOptions.RemoveEmptyEntries)
             .Length;
 
         if (numberOfFields == 5)
