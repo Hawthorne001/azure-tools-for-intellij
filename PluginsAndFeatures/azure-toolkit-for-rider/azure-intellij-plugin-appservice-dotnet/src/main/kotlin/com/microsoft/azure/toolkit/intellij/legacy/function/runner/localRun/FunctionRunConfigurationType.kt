@@ -59,7 +59,7 @@ class FunctionRunConfigurationType : ConfigurationTypeBase(
 
         for (runnableProject in functionProjects) {
             val profiles = service.loadLaunchSettingsSuspend(runnableProject)?.profiles
-            if (profiles != null) {
+            if (profiles != null && !profiles.isEmpty()) {
                 generateConfigurationForProfiles(
                     profiles,
                     runnableProject,
