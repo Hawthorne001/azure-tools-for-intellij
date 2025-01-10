@@ -32,6 +32,7 @@ import com.jetbrains.rider.azure.model.functionAppDaemonModel
 import com.jetbrains.rider.model.runnableProjectsModel
 import com.jetbrains.rider.projectView.solution
 import com.jetbrains.rider.run.configurations.AsyncExecutorFactory
+import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJsonService
 import com.jetbrains.rider.run.configurations.project.DotNetStartBrowserParameters
 import com.jetbrains.rider.run.environment.ExecutableParameterProcessor
 import com.jetbrains.rider.run.environment.ExecutableRunParameters
@@ -47,6 +48,7 @@ import com.microsoft.azure.toolkit.intellij.legacy.function.launchProfiles.*
 import com.microsoft.azure.toolkit.intellij.legacy.function.localsettings.FunctionLocalSettings
 import com.microsoft.azure.toolkit.intellij.legacy.function.localsettings.FunctionLocalSettingsService
 import com.microsoft.azure.toolkit.intellij.legacy.function.localsettings.FunctionWorkerRuntime
+import com.microsoft.azure.toolkit.intellij.legacy.function.launchProfiles.getProjectLaunchProfileByName
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -167,9 +169,9 @@ class FunctionRunExecutorFactory(
             .projectOutputs
             .singleOrNull { it.tfm?.presentableName == parameters.projectTfm }
 
-        val launchProfile = FunctionLaunchProfilesService
+        val launchProfile = LaunchSettingsJsonService
             .getInstance(project)
-            .getLaunchProfileByName(runnableProject, parameters.profileName)
+            .getProjectLaunchProfileByName(runnableProject, parameters.profileName)
 
         val effectiveArguments =
             if (parameters.trackArguments) getArguments(launchProfile?.content, projectOutput)
