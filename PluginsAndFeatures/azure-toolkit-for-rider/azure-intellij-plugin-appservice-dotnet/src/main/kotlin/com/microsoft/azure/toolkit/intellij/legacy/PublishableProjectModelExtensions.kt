@@ -15,6 +15,7 @@ import com.jetbrains.rider.projectView.solution
 import com.microsoft.azure.toolkit.intellij.legacy.function.coreTools.FunctionsVersionMsBuildService
 import com.microsoft.azure.toolkit.intellij.legacy.function.localsettings.FunctionLocalSettingsService
 import com.microsoft.azure.toolkit.intellij.legacy.function.localsettings.FunctionWorkerRuntime
+import com.microsoft.azure.toolkit.intellij.legacy.function.localsettings.getWorkerRuntime
 import com.microsoft.azure.toolkit.lib.appservice.model.OperatingSystem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -67,7 +68,7 @@ suspend fun PublishableProjectModel.getFunctionStack(
     val functionLocalSettings = FunctionLocalSettingsService
         .getInstance(project)
         .getFunctionLocalSettings(this)
-    val workerRuntime = functionLocalSettings?.values?.workerRuntime ?: FunctionWorkerRuntime.DOTNET_ISOLATED
+    val workerRuntime = functionLocalSettings?.getWorkerRuntime() ?: FunctionWorkerRuntime.DOTNET_ISOLATED
     val azureFunctionVersion = withContext(Dispatchers.EDT) {
         FunctionsVersionMsBuildService
             .getInstance(project)

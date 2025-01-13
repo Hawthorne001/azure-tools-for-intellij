@@ -10,18 +10,8 @@ import kotlinx.serialization.SerialName
 @Serializable
 data class FunctionLocalSettings(
     @SerialName("IsEncrypted") val isEncrypted: Boolean?,
-    @SerialName("Values") val values: FunctionValuesModel?,
+    @SerialName("Values") val values: Map<String, String>?,
     @SerialName("Host") val host: FunctionHostModel?,
-    @SerialName("ConnectionStrings") val connectionStrings: Map<String, String>?
-)
-
-@Serializable
-data class FunctionValuesModel(
-    @SerialName("FUNCTIONS_WORKER_RUNTIME") val workerRuntime: FunctionWorkerRuntime?,
-    @SerialName("AzureWebJobsStorage") val webJobsStorage: String?,
-    @SerialName("AzureWebJobsDashboard") val webJobsDashboard: String?,
-    @SerialName("AzureWebJobs.HttpExample.Disabled") val webJobsHttpExampleDisabled: Boolean?,
-    @SerialName("MyBindingConnection") val bindingConnection: String?
 )
 
 @Serializable
@@ -31,48 +21,22 @@ data class FunctionHostModel(
     @SerialName("CORSCredentials") val corsCredentials: Boolean?
 )
 
-@Serializable
+fun FunctionLocalSettings.getWorkerRuntime(): FunctionWorkerRuntime? {
+    val runtime = values?.get("FUNCTIONS_WORKER_RUNTIME") ?: return null
+    return when {
+        runtime.equals(FunctionWorkerRuntime.DOTNET_ISOLATED.value(), true) -> FunctionWorkerRuntime.DOTNET_ISOLATED
+        runtime.equals(FunctionWorkerRuntime.DOTNET.value(), true) -> FunctionWorkerRuntime.DOTNET
+        else -> null
+    }
+}
+
 enum class FunctionWorkerRuntime {
-    @SerialName("DOTNET") DOTNET {
+    DOTNET {
         override fun value() = "DOTNET"
     },
-    @SerialName("DOTNET-ISOLATED") DOTNET_ISOLATED {
+    DOTNET_ISOLATED {
         override fun value() = "DOTNET-ISOLATED"
     };
 
     abstract fun value(): String
 }
-//
-//data class FunctionLocalSettings(
-//    @SerializedName("IsEncrypted") val isEncrypted: Boolean?,
-//    @SerializedName("Values") val values: FunctionValuesModel?,
-//    @SerializedName("Host") val host: FunctionHostModel?,
-//    @SerializedName("ConnectionStrings") val connectionStrings: Map<String, String>?
-//)
-//
-//data class FunctionValuesModel(
-//    @SerializedName("FUNCTIONS_WORKER_RUNTIME") val workerRuntime: FunctionWorkerRuntime?,
-//    @SerializedName("AzureWebJobsStorage") val webJobsStorage: String?,
-//    @SerializedName("AzureWebJobsDashboard") val webJobsDashboard: String?,
-//    @SerializedName("AzureWebJobs.HttpExample.Disabled") val webJobsHttpExampleDisabled: Boolean?,
-//    @SerializedName("MyBindingConnection") val bindingConnection: String?
-//)
-//
-//data class FunctionHostModel(
-//    @SerializedName("LocalHttpPort") val localHttpPort: Int?,
-//    @SerializedName("CORS") val cors: String?,
-//    @SerializedName("CORSCredentials") val corsCredentials: Boolean?
-//)
-//
-//enum class FunctionWorkerRuntime {
-//    @SerializedName(value = "DOTNET", alternate = ["dotnet"])
-//    DOTNET {
-//        override fun value() = "DOTNET"
-//    },
-//    @SerializedName(value = "DOTNET-ISOLATED", alternate = ["dotnet-isolated"])
-//    DOTNET_ISOLATED {
-//        override fun value() = "DOTNET-ISOLATED"
-//    };
-//
-//    abstract fun value(): String
-//}

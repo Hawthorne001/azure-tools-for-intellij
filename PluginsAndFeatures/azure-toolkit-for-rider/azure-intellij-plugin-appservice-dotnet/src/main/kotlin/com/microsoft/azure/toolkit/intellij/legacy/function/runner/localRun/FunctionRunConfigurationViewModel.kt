@@ -31,6 +31,7 @@ import com.microsoft.azure.toolkit.intellij.legacy.function.launchProfiles.getWo
 import com.microsoft.azure.toolkit.intellij.legacy.function.localsettings.FunctionLocalSettings
 import com.microsoft.azure.toolkit.intellij.legacy.function.localsettings.FunctionLocalSettingsService
 import com.microsoft.azure.toolkit.intellij.legacy.function.localsettings.FunctionWorkerRuntime
+import com.microsoft.azure.toolkit.intellij.legacy.function.localsettings.getWorkerRuntime
 import kotlinx.coroutines.Dispatchers
 import java.io.File
 
@@ -337,7 +338,7 @@ class FunctionRunConfigurationViewModel(
         readLocalSettingsForProject(runnableProject)
 
         // Disable "Use external console" for Isolated worker
-        val workerRuntime = functionLocalSettings?.values?.workerRuntime ?: FunctionWorkerRuntime.DOTNET_ISOLATED
+        val workerRuntime = functionLocalSettings?.getWorkerRuntime() ?: FunctionWorkerRuntime.DOTNET_ISOLATED
         val workerRuntimeSupportsExternalConsole = workerRuntime != FunctionWorkerRuntime.DOTNET_ISOLATED
         useExternalConsoleEditor.isVisible.set(workerRuntimeSupportsExternalConsole)
         useExternalConsoleEditor.isSelected.set(workerRuntimeSupportsExternalConsole && useExternalConsole)

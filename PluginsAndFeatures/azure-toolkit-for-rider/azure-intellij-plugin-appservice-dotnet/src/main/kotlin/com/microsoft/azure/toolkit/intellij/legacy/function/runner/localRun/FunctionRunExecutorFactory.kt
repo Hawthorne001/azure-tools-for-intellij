@@ -49,6 +49,7 @@ import com.microsoft.azure.toolkit.intellij.legacy.function.localsettings.Functi
 import com.microsoft.azure.toolkit.intellij.legacy.function.localsettings.FunctionLocalSettingsService
 import com.microsoft.azure.toolkit.intellij.legacy.function.localsettings.FunctionWorkerRuntime
 import com.microsoft.azure.toolkit.intellij.legacy.function.launchProfiles.getProjectLaunchProfileByName
+import com.microsoft.azure.toolkit.intellij.legacy.function.localsettings.getWorkerRuntime
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -84,11 +85,9 @@ class FunctionRunExecutorFactory(
                 .getInstance(project)
                 .getFunctionLocalSettings(projectFilePath)
         }
-        val workerRuntime = if (functionLocalSettings?.values?.workerRuntime == null) {
-            getFunctionWorkerRuntimeFromBackendOrDefault(projectFilePath)
-        } else {
-            functionLocalSettings.values.workerRuntime
-        }
+
+        val workerRuntime = functionLocalSettings?.getWorkerRuntime()
+            ?: getFunctionWorkerRuntimeFromBackendOrDefault(projectFilePath)
         LOG.debug { "Worker runtime: $workerRuntime" }
 
         val functionsRuntimeVersion = calculateFunctionsRuntimeVersion(msBuildVersionProperty, workerRuntime)
