@@ -141,7 +141,7 @@ class FunctionRunConfigurationViewModel(
         launchProfileSelector.isLoading.set(false)
     }
 
-    private fun readLocalSettingsForProject(runnableProject: RunnableProject) {
+    private suspend fun readLocalSettingsForProject(runnableProject: RunnableProject) {
         functionLocalSettings = FunctionLocalSettingsService
             .getInstance(project)
             .getFunctionLocalSettings(runnableProject)

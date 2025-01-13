@@ -4,25 +4,26 @@
 
 package com.microsoft.azure.toolkit.intellij.legacy.function.localsettings
 
-import com.google.gson.Gson
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.openapi.vfs.readText
+import com.intellij.psi.util.CachedValue
+import com.intellij.psi.util.CachedValuesManager
 import com.jetbrains.rider.model.PublishableProjectModel
 import com.jetbrains.rider.model.RunnableProject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import java.nio.file.Path
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.io.path.Path
-import kotlin.io.path.absolutePathString
 import kotlin.io.path.exists
 
 @Service(Service.Level.PROJECT)
-class FunctionLocalSettingsService {
+class FunctionLocalSettingsService(private val project: Project) {
     companion object {
         fun getInstance(project: Project): FunctionLocalSettingsService = project.service()
     }
@@ -33,58 +34,53 @@ class FunctionLocalSettingsService {
         explicitNulls = false
         ignoreUnknownKeys = true
         allowTrailingComma = true
+        allowComments = true
     }
 
-    private val cache = ConcurrentHashMap<String, Pair<Long, FunctionLocalSettings>>()
+    private val cache = ConcurrentHashMap<Path, CachedValue<FunctionLocalSettings>>()
 
-    fun initialize(runnableProjects: List<RunnableProject>) {
+    suspend fun initialize(runnableProjects: List<RunnableProject>) {
         runnableProjects.forEach {
-            val localSettingsFile = getLocalSettingFilePathInternal(Path(it.projectFilePath).parent)
-            if (!localSettingsFile.exists()) return@forEach
-            val pathString = localSettingsFile.absolutePathString()
-            if (cache.containsKey(pathString)) return@forEach
-            val virtualFile = VfsUtil.findFile(localSettingsFile, true) ?: return@forEach
-            val localSettingsFileStamp = localSettingsFile.toFile().lastModified()
-            val localSettings = getFunctionLocalSettings(virtualFile)
-            cache[pathString] = Pair(localSettingsFileStamp, localSettings)
+            getFunctionLocalSettings(it)
         }
     }
 
-    fun getFunctionLocalSettings(publishableProject: PublishableProjectModel) =
+    suspend fun getFunctionLocalSettings(publishableProject: PublishableProjectModel) =
         getFunctionLocalSettingsInternal(Path(publishableProject.projectFilePath).parent)
 
-    fun getFunctionLocalSettings(runnableProject: RunnableProject) =
+    suspend fun getFunctionLocalSettings(runnableProject: RunnableProject) =
         getFunctionLocalSettingsInternal(Path(runnableProject.projectFilePath).parent)
 
-    fun getFunctionLocalSettings(projectPath: Path) =
+    suspend fun getFunctionLocalSettings(projectPath: Path) =
         getFunctionLocalSettingsInternal(projectPath.parent)
 
-    private fun getFunctionLocalSettingsInternal(basePath: Path): FunctionLocalSettings? {
+    private suspend fun getFunctionLocalSettingsInternal(basePath: Path): FunctionLocalSettings? {
         val localSettingsFile = getLocalSettingFilePathInternal(basePath)
         if (!localSettingsFile.exists()) return null
 
-        val localSettingsFileStamp = localSettingsFile.toFile().lastModified()
-        val pathString = localSettingsFile.absolutePathString()
-        val existingLocalSettings = cache[pathString]
-        if (existingLocalSettings == null || localSettingsFileStamp != existingLocalSettings.first) {
-            val virtualFile = VfsUtil.findFile(localSettingsFile, true) ?: return null
-            val localSettings = getFunctionLocalSettings(virtualFile)
-            cache[pathString] = Pair(localSettingsFileStamp, localSettings)
-            return localSettings
-        }
+        val virtualFile = withContext(Dispatchers.IO) {
+            VfsUtil.findFile(localSettingsFile, true)
+        } ?: return null
 
-        return existingLocalSettings.second
+        val localSettings = getFunctionLocalSettings(virtualFile)
+        return localSettings
     }
 
     fun getLocalSettingFilePath(projectPath: Path) =
         getLocalSettingFilePathInternal(projectPath.parent)
 
-    private fun getLocalSettingFilePathInternal(basePath: Path): Path = basePath.resolve("local.settings.json")
+    private fun getLocalSettingFilePathInternal(basePath: Path): Path =
+        basePath.resolve("local.settings.json")
 
-    private fun getFunctionLocalSettings(localSettingsFile: VirtualFile): FunctionLocalSettings {
-        val content = localSettingsFile.readText()
-        //Return back when `allowComments` is available.
-        //return json.decodeFromString<FunctionLocalSettings>(content)
-        return Gson().fromJson(content, FunctionLocalSettings::class.java)
+    private fun getFunctionLocalSettings(localSettingsFile: VirtualFile): FunctionLocalSettings? {
+        val path = localSettingsFile.toNioPath()
+        val localSettings = cache.getOrPut(path) {
+            val cachedValuesManager = CachedValuesManager.getManager(project)
+            val provider = FunctionLocalSettingsCachedValueProvider(localSettingsFile, json)
+            val cachedValue = cachedValuesManager.createCachedValue(provider, false)
+            cachedValue
+        }
+
+        return localSettings.value
     }
 }
