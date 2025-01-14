@@ -11,6 +11,7 @@
 ### Fixed
 
 - AppService ComboBox render logic
+- Cannot Open Files of Deployed Apps from Explorer ([RIDER-120305](https://youtrack.jetbrains.com/issue/RIDER-120305))
 
 ## [4.3.8] - 2024-12-17
 
