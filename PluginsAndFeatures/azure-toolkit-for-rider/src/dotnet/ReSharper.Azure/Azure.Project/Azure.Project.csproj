@@ -5,6 +5,6 @@
         <AssemblyName>JetBrains.ReSharper.Azure.Project</AssemblyName>
     </PropertyGroup>
 
-    <Import Project="$(JetBrainsRiderRdBackendCommonReference)" Condition="Exists('$(JetBrainsRiderRdBackendCommonReference)')" />
+    <Import Project="$(JetBrainsRiderBackendReference)" Condition="Exists('$(JetBrainsRiderBackendReference)')" />
 
 </Project>

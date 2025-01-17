@@ -1,6 +1,7 @@
 // Copyright 2018-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the MIT license.
 
 using System.Collections.Generic;
+using JetBrains.Application.Threading;
 using JetBrains.ProjectModel;
 using JetBrains.ProjectModel.Assemblies.Interfaces;
 using JetBrains.ProjectModel.MSBuild;
@@ -116,11 +117,13 @@ public static class FunctionAppProjectDetector
         }
 
         // 1) Check MSBuild properties. When the property is defined but is empty, this will yield false.
-        var hasMsBuildProperty = !string.IsNullOrEmpty(
-            project
-                .GetRequestedProjectProperties(MSBuildProjectUtil.AzureFunctionsVersionProperty)
-                .FirstNotNull()
-        );
+        bool hasMsBuildProperty;
+        using (project.Locks.UsingReadLock())
+        {
+            var propertyValue = project
+                .GetRequestedProjectProperty(targetFrameworkId, MSBuildProjectUtil.AzureFunctionsVersionProperty);
+            hasMsBuildProperty = !string.IsNullOrEmpty(propertyValue);
+        }
 
         // 2) Check expected package reference.
         //
@@ -136,9 +139,13 @@ public static class FunctionAppProjectDetector
             IsolatedWorker.HasFunctionsPackageReference(project, targetFrameworkId);
 
         // 3) Check the existence of host.json in the project
-        var hasHostJsonFile = project
-            .GetSubItems("host.json")
-            .Any();
+        bool hasHostJsonFile;
+        using (project.Locks.UsingReadLock())
+        {
+            hasHostJsonFile = project
+                .GetSubItems("host.json")
+                .Any();
+        }
 
         // Build problem description
         problems = !hasHostJsonFile
