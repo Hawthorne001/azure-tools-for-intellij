@@ -89,7 +89,7 @@ public class FunctionAppDaemonHost
         var project = FindProjectByPath(request.ProjectFilePath);
         if (project is null) return AzureFunctionWorkerModel.Unknown;
 
-        var model = FunctionAppProjectDetector.GetFunctionProjectWorkerModel(project);
+        var model = project.GetFunctionProjectWorkerModel();
 
         return model switch
         {

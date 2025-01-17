@@ -26,7 +26,7 @@ public class FunctionAppRunMarkerProvider : IRunMarkerProvider
 
         var project = file.GetProject();
         if (project == null || !project.IsValid()) return;
-        if (!FunctionAppProjectDetector.IsAzureFunctionsProject(project)) return;
+        if (!project.IsAzureFunctionsProject()) return;
 
         foreach (var declaration in CachedDeclarationsCollector.Run<IMethodDeclaration>(csharpFile))
         {

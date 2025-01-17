@@ -15,24 +15,30 @@ namespace JetBrains.ReSharper.Azure.Project.FunctionApp;
 
 public static class FunctionAppProjectDetector
 {
-    public static class DefaultWorker
+    private static class DefaultWorker
     {
         private static readonly NugetId ExpectedFunctionsNuGetPackageId = new("Microsoft.NET.Sdk.Functions");
 
-        public static bool HasFunctionsPackageReference(IProject project, TargetFrameworkId? targetFrameworkId) =>
+        internal static bool HasFunctionsPackageReference(IProject project, TargetFrameworkId? targetFrameworkId) =>
             project.GetPackagesReference(ExpectedFunctionsNuGetPackageId, targetFrameworkId) != null;
     }
 
-    public static class IsolatedWorker
+    public static bool HasDefaultWorkerPackageReference(this IProject project, TargetFrameworkId? targetFrameworkId) =>
+        DefaultWorker.HasFunctionsPackageReference(project, targetFrameworkId);
+
+    private static class IsolatedWorker
     {
         private static readonly NugetId ExpectedFunctionsNuGetPackageId = new("Microsoft.Azure.Functions.Worker");
 
-        public static bool HasFunctionsPackageReference(IProject project, TargetFrameworkId? targetFrameworkId) =>
+        internal static bool HasFunctionsPackageReference(IProject project, TargetFrameworkId? targetFrameworkId) =>
             project.GetPackagesReference(ExpectedFunctionsNuGetPackageId, targetFrameworkId) != null;
     }
 
-    public static List<ProjectOutput> GetAzureFunctionsCompatibleProjectOutputs(
-        IProject project,
+    public static bool HasIsolatedWorkerPackageReference(this IProject project, TargetFrameworkId? targetFrameworkId) =>
+        IsolatedWorker.HasFunctionsPackageReference(project, targetFrameworkId);
+
+    internal static List<ProjectOutput> GetAzureFunctionsCompatibleProjectOutputs(
+        this IProject project,
         out string? problems,
         ILogger? logger = null)
     {
@@ -76,7 +82,7 @@ public static class FunctionAppProjectDetector
         return projectOutputs;
     }
 
-    public static bool IsAzureFunctionsProject(IProject project)
+    public static bool IsAzureFunctionsProject(this IProject project)
     {
         foreach (var tfm in project.TargetFrameworkIds)
         {
@@ -109,7 +115,7 @@ public static class FunctionAppProjectDetector
             return false;
         }
 
-        // 1) Check MSBuild properties. When property is defined but is empty, this will yield false.
+        // 1) Check MSBuild properties. When the property is defined but is empty, this will yield false.
         var hasMsBuildProperty = !string.IsNullOrEmpty(
             project
                 .GetRequestedProjectProperties(MSBuildProjectUtil.AzureFunctionsVersionProperty)
@@ -129,7 +135,7 @@ public static class FunctionAppProjectDetector
             DefaultWorker.HasFunctionsPackageReference(project, targetFrameworkId) ||
             IsolatedWorker.HasFunctionsPackageReference(project, targetFrameworkId);
 
-        // 3) Check existence of host.json in the project
+        // 3) Check the existence of host.json in the project
         var hasHostJsonFile = project
             .GetSubItems("host.json")
             .Any();
@@ -142,7 +148,7 @@ public static class FunctionAppProjectDetector
         return hasMsBuildProperty || hasExpectedPackageReference || hasHostJsonFile;
     }
 
-    public static FunctionProjectWorkerModel GetFunctionProjectWorkerModel(IProject project)
+    public static FunctionProjectWorkerModel GetFunctionProjectWorkerModel(this IProject project)
     {
         foreach (var tfm in project.TargetFrameworkIds)
         {

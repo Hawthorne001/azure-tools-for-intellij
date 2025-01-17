@@ -13,7 +13,8 @@ namespace JetBrains.ReSharper.Azure.Project.RunnableProject;
 [SolutionComponent(Instantiation.DemandAnyThreadSafe)]
 public class AzureFunctionsRunnableProjectProvider(ILogger logger) : IRunnableProjectProvider
 {
-    public Rider.Model.RunnableProject? CreateRunnableProject(IProject project, string name, string fullName, IconModel? icon)
+    public Rider.Model.RunnableProject? CreateRunnableProject(IProject project, string name, string fullName,
+        IconModel? icon)
     {
         if (!project.IsDotNetCoreProject())
         {
@@ -21,10 +22,7 @@ public class AzureFunctionsRunnableProjectProvider(ILogger logger) : IRunnablePr
             return null;
         }
 
-        var projectOutputs = FunctionAppProjectDetector.GetAzureFunctionsCompatibleProjectOutputs(
-            project,
-            out var problems,
-            logger);
+        var projectOutputs = project.GetAzureFunctionsCompatibleProjectOutputs(out var problems, logger);
 
         if (projectOutputs.IsEmpty())
         {
