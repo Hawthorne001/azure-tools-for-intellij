@@ -2,7 +2,7 @@
 
 using JetBrains.Rider.Model;
 
-namespace JetBrains.ReSharper.Azure.Project.RunnableProjectsHost.RunnableProjectProviders;
+namespace JetBrains.ReSharper.Azure.Project.RunnableProject;
 
 public static class AzureRunnableProjectKinds
 {
