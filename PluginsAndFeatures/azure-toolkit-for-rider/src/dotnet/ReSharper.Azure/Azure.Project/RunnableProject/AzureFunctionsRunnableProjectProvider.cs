@@ -8,12 +8,13 @@ using JetBrains.ReSharper.Features.Running;
 using JetBrains.Rider.Model;
 using JetBrains.Util;
 
-namespace JetBrains.ReSharper.Azure.Project.RunnableProjectsHost.RunnableProjectProviders;
+namespace JetBrains.ReSharper.Azure.Project.RunnableProject;
 
 [SolutionComponent(Instantiation.DemandAnyThreadSafe)]
 public class AzureFunctionsRunnableProjectProvider(ILogger logger) : IRunnableProjectProvider
 {
-    public RunnableProject? CreateRunnableProject(IProject project, string name, string fullName, IconModel? icon)
+    public Rider.Model.RunnableProject? CreateRunnableProject(IProject project, string name, string fullName,
+        IconModel? icon)
     {
         if (!project.IsDotNetCoreProject())
         {
@@ -21,10 +22,7 @@ public class AzureFunctionsRunnableProjectProvider(ILogger logger) : IRunnablePr
             return null;
         }
 
-        var projectOutputs = FunctionAppProjectDetector.GetAzureFunctionsCompatibleProjectOutputs(
-            project,
-            out var problems,
-            logger);
+        var projectOutputs = project.GetAzureFunctionsCompatibleProjectOutputs(out var problems, logger);
 
         if (projectOutputs.IsEmpty())
         {
@@ -34,7 +32,7 @@ public class AzureFunctionsRunnableProjectProvider(ILogger logger) : IRunnablePr
 
         logger.Trace($"AzureFunctionsRunnableProjectProvider returned RunnableProject {fullName}");
 
-        return new RunnableProject(
+        return new Rider.Model.RunnableProject(
             name,
             fullName,
             project.ProjectFileLocation.NormalizeSeparators(FileSystemPathEx.SeparatorStyle.Unix),

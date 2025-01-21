@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- Ability to generate a Dockerfile for a Function project
+
 ## [4.4.0] - 2025-01-17
 
 ### Changed

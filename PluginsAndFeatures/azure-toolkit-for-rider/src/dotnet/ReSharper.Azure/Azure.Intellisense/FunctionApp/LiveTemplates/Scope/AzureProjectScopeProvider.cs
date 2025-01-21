@@ -40,14 +40,14 @@ public class AzureProjectScopeProvider : ScopeProvider
     {
         var project = context.GetProject();
         if (project == null) yield break;
-        if (FunctionAppProjectDetector.IsAzureFunctionsProject(project))
+        if (project.IsAzureFunctionsProject())
         {
             yield return new InAzureFunctionsProject();
 
-            if (FunctionAppProjectDetector.DefaultWorker.HasFunctionsPackageReference(project, null))
+            if (project.HasDefaultWorkerPackageReference(null))
                 yield return new MustUseAzureFunctionsDefaultWorker();
 
-            if (FunctionAppProjectDetector.IsolatedWorker.HasFunctionsPackageReference(project, null))
+            if (project.HasIsolatedWorkerPackageReference(null))
                 yield return new MustUseAzureFunctionsIsolatedWorker();
 
             foreach (var scope in GetLanguageSpecificScopePoints(project))
