@@ -24,8 +24,9 @@ import com.microsoft.azure.toolkit.lib.auth.AzureCloud
 import com.microsoft.azure.toolkit.lib.common.proxy.ProxyInfo
 import com.microsoft.azure.toolkit.lib.common.proxy.ProxyManager
 import com.microsoft.azure.toolkit.lib.common.task.AzureRxTaskManager
-import java.io.File
 import javax.net.ssl.HttpsURLConnection
+import kotlin.io.path.Path
+import kotlin.io.path.absolutePathString
 
 class PluginLifecycleActivity : ProjectActivity {
     companion object {
@@ -35,7 +36,7 @@ class PluginLifecycleActivity : ProjectActivity {
     override suspend fun execute(project: Project) {
         try {
             AzureRxTaskManager.register()
-            val azureJson = String.format("%s%s%s", CommonConst.PLUGIN_PATH, File.separator, "azure.json")
+            val azureJson = Path(CommonConst.PLUGIN_PATH).resolve("azure.json").absolutePathString()
             AzureStoreManager.register(
                 DefaultMachineStore(azureJson),
                 IntellijStore.getInstance(),
