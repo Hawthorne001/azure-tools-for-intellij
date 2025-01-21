@@ -6,7 +6,9 @@ package com.microsoft.azure.toolkit.intellij.base
 
 import com.intellij.ide.AppLifecycleListener
 import com.intellij.openapi.diagnostic.logger
-import com.intellij.util.net.HttpConfigurable
+import com.intellij.util.net.ProxyAuthentication
+import com.intellij.util.net.ProxyConfiguration.StaticProxyConfiguration
+import com.intellij.util.net.ProxySettings
 import com.intellij.util.net.ssl.CertificateManager
 import com.microsoft.azure.toolkit.ide.common.auth.IdeAzureAccount
 import com.microsoft.azure.toolkit.ide.common.store.AzureConfigInitializer.initialize
@@ -60,18 +62,23 @@ class PluginLifecycleListener : AppLifecycleListener {
     }
 
     private fun initProxy() {
-        val instance = HttpConfigurable.getInstance()
-        if (instance != null && instance.USE_HTTP_PROXY) {
-            val proxy = ProxyInfo.builder()
-                .source("intellij")
-                .host(instance.PROXY_HOST)
-                .port(instance.PROXY_PORT)
-                .username(instance.proxyLogin)
-                .password(instance.plainProxyPassword)
-                .build()
-            Azure.az().config().setProxyInfo(proxy)
-            ProxyManager.getInstance().applyProxy()
+        val proxySettings = ProxySettings.getInstance().getProxyConfiguration()
+        if (proxySettings is StaticProxyConfiguration) {
+            val proxyAuthentication = ProxyAuthentication.getInstance()
+            val credentials = proxyAuthentication.getKnownAuthentication(proxySettings.host, proxySettings.port)
+            if (credentials != null) {
+                val proxy = ProxyInfo.builder()
+                    .source("intellij")
+                    .host(proxySettings.host)
+                    .port(proxySettings.port)
+                    .username(credentials.userName)
+                    .password(credentials.password?.toString() ?: "")
+                    .build()
+                Azure.az().config().setProxyInfo(proxy)
+                ProxyManager.getInstance().applyProxy()
+            }
         }
+
         val certificateManager = CertificateManager.getInstance()
         Azure.az().config().sslContext = certificateManager.sslContext
         HttpsURLConnection.setDefaultSSLSocketFactory(certificateManager.sslContext.socketFactory)
