@@ -16,6 +16,7 @@ import com.microsoft.azure.toolkit.lib.appservice.function.AzureFunctions
 import com.microsoft.azure.toolkit.lib.appservice.function.FunctionApp
 import com.microsoft.azure.toolkit.lib.appservice.model.OperatingSystem
 import com.microsoft.azure.toolkit.lib.appservice.webapp.WebApp
+import com.microsoft.azure.toolkit.lib.common.model.AbstractAzResource
 import com.microsoft.azure.toolkit.lib.common.model.AzResource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -68,7 +69,7 @@ fun AppServiceAppBase<*, *, *>.isRunning(): Boolean {
     }
 }
 
-// TODO: Move it to the base plugin
+// TODO: Move it to the base plugin (https://github.com/microsoft/azure-maven-plugins/pull/2512)
 suspend fun AppServiceAppBase<*, *, *>.enableWebSockets() {
     withContext(Dispatchers.Default) {
         invokeDoModify({
@@ -81,12 +82,13 @@ suspend fun AppServiceAppBase<*, *, *>.enableWebSockets() {
 }
 
 private fun AppServiceAppBase<*, *, *>.invokeDoModify(body: Runnable, status: String?) {
-    val clazz = this::class.java
+    val instance = this
+    val clazz = AbstractAzResource::class.java
     val method = clazz.getDeclaredMethod("doModify", Runnable::class.java, String::class.java)
 
     method.apply {
         isAccessible = true
-        invoke(this, body, status)
+        invoke(instance, body, status)
     }
 }
 
