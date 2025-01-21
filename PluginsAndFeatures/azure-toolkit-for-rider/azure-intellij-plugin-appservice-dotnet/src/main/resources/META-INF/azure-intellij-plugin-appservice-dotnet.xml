@@ -100,6 +100,9 @@
                 implementation="com.microsoft.azure.toolkit.intellij.legacy.function.FunctionAppDeploymentSlotPropertyViewProvider"/>
 
         <notificationGroup id="Azure AppServices" displayType="BALLOON" isLogByDefault="true"/>
+
+        <xdebugger.dialog.process.view.provider implementation="com.microsoft.azure.toolkit.intellij.debugger.view.AttachToAzureAppServiceProcessViewProvider" />
+        <xdebugger.attachDebuggerProvider implementation="com.microsoft.azure.toolkit.intellij.debugger.RiderAzureAttachDebuggerProvider" />
     </extensions>
 
     <actions>
@@ -119,4 +122,8 @@
                 icon="/icons/FunctionApp/Deploy.svg">
         </action>
     </actions>
+
+    <projectListeners>
+        <listener topic="com.intellij.xdebugger.XDebuggerManagerListener" class="com.microsoft.azure.toolkit.intellij.debugger.pings.AzureAppServiceDebugSessionsListener"/>
+    </projectListeners>
 </idea-plugin>

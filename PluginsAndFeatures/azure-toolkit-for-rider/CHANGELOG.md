@@ -3,6 +3,7 @@
 # Azure Toolkit for Rider Changelog
 
 ## [Unreleased]
+- Support for debugging Azure App Services remotely
 
 ### Added
 
