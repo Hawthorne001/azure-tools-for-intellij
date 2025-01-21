@@ -16,7 +16,7 @@ import javax.annotation.Nonnull;
 import java.util.Locale;
 import java.util.Objects;
 
-// TODO: Move it to the base plugin
+// TODO: Move it to the base plugin (https://github.com/microsoft/azure-maven-plugins/pull/2511)
 public class AppServiceKuduClientExt
 {
     private final String host;
@@ -69,7 +69,7 @@ public class AppServiceKuduClientExt
     }
 
     public void killProcess(final int id) {
-        this.kuduService.killProcess(id).block();
+        this.kuduService.killProcess(host, id).block();
     }
 
     @Host("{$host}")
@@ -90,6 +90,7 @@ public class AppServiceKuduClientExt
         Mono<Response<ExtensionInfo>> installOrUpdatePackage(@HostParam("$host") String host, @PathParam("id") String id);
 
         @Delete("/api/processes/{id}")
-        Mono<Void> killProcess(int id);
+        @ExpectedResponses({502})
+        Mono<Void> killProcess(@HostParam("$host") String host, @PathParam("id") int id);
     }
 }
