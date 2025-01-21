@@ -122,4 +122,8 @@
                 icon="/icons/FunctionApp/Deploy.svg">
         </action>
     </actions>
+
+    <projectListeners>
+        <listener topic="com.intellij.xdebugger.XDebuggerManagerListener" class="com.microsoft.azure.toolkit.intellij.debugger.pings.AzureAppServiceDebugSessionsListener"/>
+    </projectListeners>
 </idea-plugin>
