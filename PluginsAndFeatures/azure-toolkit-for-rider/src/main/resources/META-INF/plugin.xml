@@ -46,6 +46,8 @@
     <depends>com.intellij.modules.rider</depends>
 
     <extensions defaultExtensionNs="com.intellij">
+        <postStartupActivity implementation="com.microsoft.azure.toolkit.intellij.base.PluginLifecycleActivity"/>
+
         <applicationConfigurable parentId="tools"
                                  displayName="Azure"
                                  id="com.microsoft.intellij.AzureConfigurable"
@@ -75,11 +77,6 @@
     <extensions defaultExtensionNs="com.microsoft.tooling.msservices.intellij.azure">
         <actions implementation="com.microsoft.azure.toolkit.intellij.settings.IntellijCommonActionsContributor"/>
     </extensions>
-
-    <applicationListeners>
-        <listener class="com.microsoft.azure.toolkit.intellij.base.PluginLifecycleListener"
-                  topic="com.intellij.ide.AppLifecycleListener"/>
-    </applicationListeners>
 
     <actions>
         <group id="AzurePopupGroup"

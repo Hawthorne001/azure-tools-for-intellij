@@ -1,11 +1,12 @@
 /*
- * Copyright 2018-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the MIT license.
+ * Copyright 2018-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the MIT license.
  */
 
 package com.microsoft.azure.toolkit.intellij.base
 
-import com.intellij.ide.AppLifecycleListener
 import com.intellij.openapi.diagnostic.logger
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.startup.ProjectActivity
 import com.intellij.util.net.ProxyAuthentication
 import com.intellij.util.net.ProxyConfiguration.StaticProxyConfiguration
 import com.intellij.util.net.ProxySettings
@@ -23,16 +24,15 @@ import com.microsoft.azure.toolkit.lib.auth.AzureCloud
 import com.microsoft.azure.toolkit.lib.common.proxy.ProxyInfo
 import com.microsoft.azure.toolkit.lib.common.proxy.ProxyManager
 import com.microsoft.azure.toolkit.lib.common.task.AzureRxTaskManager
-import com.microsoft.azure.toolkit.lib.common.task.AzureTaskManager
 import java.io.File
 import javax.net.ssl.HttpsURLConnection
 
-class PluginLifecycleListener : AppLifecycleListener {
+class PluginLifecycleActivity : ProjectActivity {
     companion object {
-        private val LOG = logger<PluginLifecycleListener>()
+        private val LOG = logger<PluginLifecycleActivity>()
     }
 
-    override fun appFrameCreated(commandLineArgs: MutableList<String>) {
+    override suspend fun execute(project: Project) {
         try {
             AzureRxTaskManager.register()
             val azureJson = String.format("%s%s%s", CommonConst.PLUGIN_PATH, File.separator, "azure.json")
@@ -43,9 +43,7 @@ class PluginLifecycleListener : AppLifecycleListener {
             )
             initProxy()
             initializeConfig()
-            AzureTaskManager.getInstance().runLater {
-                IdeAzureAccount.getInstance().restoreSignin()
-            }
+            IdeAzureAccount.getInstance().restoreSignin()
         } catch (t: Throwable) {
             LOG.error(t)
         }
