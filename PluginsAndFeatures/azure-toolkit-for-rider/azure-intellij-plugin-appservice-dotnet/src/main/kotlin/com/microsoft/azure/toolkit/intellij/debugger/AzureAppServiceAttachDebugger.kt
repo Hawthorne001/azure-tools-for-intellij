@@ -21,16 +21,12 @@ class AzureAppServiceAttachDebugger(
     RiderAttachDebuggerBase<RdProcessInfoBase>(rdProcessInfo) {
     override fun getDebuggerDisplayName(): String = debugger.debuggerDisplayName
 
-    override fun attachDebugSession(project: Project, hostInfo: XAttachHost, processInfo: ProcessInfo) {
-        debugger.attachDebugSession(project, hostInfo, processInfo)
-    }
-
     override fun createLocalAttachProfile(
         processInfo: ProcessInfo,
         rdProcessInfo: RdProcessInfoBase,
         localAttachHost: LocalAttachHost
     ): RunProfile {
-        return debugger.createLocalAttachProfile(processInfo, rdProcessInfo, localAttachHost)
+        throw UnsupportedOperationException("AzureAppServiceAttachDebugger supports only remote debugging")
     }
 
     override fun createRemoteAttachProfile(

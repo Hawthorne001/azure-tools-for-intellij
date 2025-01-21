@@ -235,7 +235,7 @@ public class IntellijAzureActionManager extends AzureActionManager {
 
         private void addActions(List<Object> actions) {
             for (final Object raw : actions) {
-                doAddAction(raw);
+                doAddAction(raw, Constraints.LAST);
             }
         }
 
@@ -258,28 +258,23 @@ public class IntellijAzureActionManager extends AzureActionManager {
             return group.getActions();
         }
 
+        // TODO: Move changes to the base plugin (https://github.com/microsoft/azure-tools-for-java/pull/9706)
         @Override
         public void addAction(Object raw) {
-            AnAction anAction = getAction(raw);
-            if (anAction != null) {
-                this.group.addAction(raw);
-                this.add(anAction, Constraints.LAST);
-            }
+            this.group.addAction(raw);
+            doAddAction(raw, Constraints.LAST);
         }
 
         @Override
         public void prependAction(Object action) {
-            AnAction anAction = getAction(action);
-            if (anAction != null) {
-                this.group.prependAction(action);
-                this.add(anAction, Constraints.FIRST);
-            }
+            this.group.prependAction(action);
+            doAddAction(action, Constraints.FIRST);
         }
 
-        private void doAddAction(Object raw) {
+        private void doAddAction(Object raw, Constraints constraints) {
             AnAction anAction = getAction(raw);
             if (anAction != null) {
-                this.add(anAction, Constraints.LAST);
+                this.add(anAction, constraints);
             }
         }
 

@@ -4,6 +4,7 @@
 
 package com.microsoft.azure.toolkit.intellij.debugger.attachHosts
 
+import com.intellij.execution.process.ProcessInfo
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
 import com.intellij.remote.RemoteCredentials
@@ -26,9 +27,12 @@ abstract class AppServiceAttachHost<T : AppServiceAppBase<*, *, *>>(project: Pro
         }
     }
 
-    override suspend fun calculateProcesses(debuggerTools: DebuggerTools): List<RdProcessInfoBase> {
+    override suspend fun getProcessListAsync(): List<ProcessInfo> {
         prepareApp()
+        return super.getProcessListAsync()
+    }
 
+    override suspend fun calculateProcesses(debuggerTools: DebuggerTools): List<RdProcessInfoBase> {
         val processesHost = service<MsClrAttachableProcessesHost>()
         return processesHost.calculateRemoteProcesses(project, debuggerTools)
     }

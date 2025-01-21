@@ -17,8 +17,7 @@ import com.jetbrains.rider.model.RdProcessInfoBase
 import com.microsoft.azure.toolkit.intellij.debugger.attachHosts.AppServiceAttachHost
 
 class RiderAzureAttachDebuggerProvider : XAttachDebuggerProvider {
-    override fun isAttachHostApplicable(xAttachHost: XAttachHost): Boolean =
-        xAttachHost is AppServiceAttachHost<*>
+    override fun isAttachHostApplicable(xAttachHost: XAttachHost): Boolean = xAttachHost is AppServiceAttachHost<*>
 
     override fun getAvailableDebuggers(
         project: Project,
