@@ -18,12 +18,12 @@ import com.microsoft.azure.toolkit.ide.common.store.DefaultMachineStore
 import com.microsoft.azure.toolkit.intellij.common.CommonConst
 import com.microsoft.azure.toolkit.intellij.common.auth.IntelliJSecureStore
 import com.microsoft.azure.toolkit.intellij.common.settings.IntellijStore
-import com.microsoft.azure.toolkit.intellij.common.telemetry.IntelliJAzureTelemetryCommonPropertiesProvider
 import com.microsoft.azure.toolkit.lib.Azure
 import com.microsoft.azure.toolkit.lib.auth.AzureCloud
 import com.microsoft.azure.toolkit.lib.common.proxy.ProxyInfo
 import com.microsoft.azure.toolkit.lib.common.proxy.ProxyManager
 import com.microsoft.azure.toolkit.lib.common.task.AzureRxTaskManager
+import java.util.UUID
 import javax.net.ssl.HttpsURLConnection
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
@@ -51,8 +51,7 @@ class PluginLifecycleActivity : ProjectActivity {
     }
 
     private fun initializeConfig() {
-        val installId = IntelliJAzureTelemetryCommonPropertiesProvider.getInstallationId()
-
+        val installId = UUID.randomUUID().toString()
         initialize(installId, "Azure Toolkit for IntelliJ", CommonConst.PLUGIN_VERSION)
         val cloud = Azure.az().config().cloud
         if (cloud.isNotBlank()) {
