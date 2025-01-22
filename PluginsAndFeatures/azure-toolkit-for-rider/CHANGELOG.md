@@ -3,11 +3,15 @@
 # Azure Toolkit for Rider Changelog
 
 ## [Unreleased]
-- Support for debugging Azure App Services remotely
 
 ### Added
 
+- Support for debugging Azure App Services remotely
 - Ability to generate a Dockerfile for a Function project
+
+### Changed
+
+- Improve startup for the plugin
 
 ## [4.4.0] - 2025-01-17
 
