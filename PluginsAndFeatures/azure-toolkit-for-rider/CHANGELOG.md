@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [4.4.1] - 2025-01-22
+
 ### Added
 
 - Support for debugging Azure App Services remotely
@@ -264,7 +266,8 @@
 - Reimplement Azure Functions Core Tools integration
 - Reimplement Azure Functions templates
 
-[Unreleased]: https://github.com/JetBrains/azure-tools-for-intellij/compare/v4.4.0...HEAD
+[Unreleased]: https://github.com/JetBrains/azure-tools-for-intellij/compare/v4.4.1...HEAD
+[4.4.1]: https://github.com/JetBrains/azure-tools-for-intellij/compare/v4.4.0...v4.4.1
 [4.4.0]: https://github.com/JetBrains/azure-tools-for-intellij/compare/v4.3.8...v4.4.0
 [4.3.8]: https://github.com/JetBrains/azure-tools-for-intellij/compare/v4.3.7...v4.3.8
 [4.3.7]: https://github.com/JetBrains/azure-tools-for-intellij/compare/v4.3.6...v4.3.7
