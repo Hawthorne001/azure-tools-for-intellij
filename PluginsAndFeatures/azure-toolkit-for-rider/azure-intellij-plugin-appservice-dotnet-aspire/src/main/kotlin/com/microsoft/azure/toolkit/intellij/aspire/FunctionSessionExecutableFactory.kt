@@ -51,7 +51,7 @@ class FunctionSessionExecutableFactory(private val project: Project) {
         sessionModel: SessionModel,
         hostRunConfiguration: AspireHostConfiguration?,
         addBrowserAction: Boolean
-    ): Pair<DotNetExecutable, StartBrowserSettings?>? {
+    ): DotNetExecutable? {
         val sessionProjectPath = Path(sessionModel.projectPath)
         val runnableProject = project.solution.runnableProjectsModel.findBySessionProject(sessionProjectPath)
         return if (runnableProject != null) {
@@ -78,7 +78,7 @@ class FunctionSessionExecutableFactory(private val project: Project) {
         sessionModel: SessionModel,
         hostRunConfiguration: AspireHostConfiguration?,
         addBrowserAction: Boolean
-    ): Pair<DotNetExecutable, StartBrowserSettings?>? {
+    ): DotNetExecutable? {
         val output = runnableProject.projectOutputs.firstOrNull()
         if (output == null) {
             LOG.warn("Unable to find output for runnable project $sessionProjectPath")
@@ -142,7 +142,7 @@ class FunctionSessionExecutableFactory(private val project: Project) {
             true,
             DotNetCoreRuntimeType,
             usePty = false
-        ) to browserSettings
+        )
     }
 
     private suspend fun getExecutableForExternalProject(
@@ -150,7 +150,7 @@ class FunctionSessionExecutableFactory(private val project: Project) {
         sessionModel: SessionModel,
         hostRunConfiguration: AspireHostConfiguration?,
         addBrowserAction: Boolean
-    ): Pair<DotNetExecutable, StartBrowserSettings?>? {
+    ): DotNetExecutable? {
         val propertyService = MSBuildPropertyService.getInstance(project)
         val properties = propertyService.getProjectRunProperties(sessionProjectPath)
         if (properties == null) {
@@ -215,7 +215,7 @@ class FunctionSessionExecutableFactory(private val project: Project) {
             "",
             true,
             DotNetCoreRuntimeType
-        ) to browserSettings
+        )
     }
 
     //See: https://github.com/dotnet/aspire/blob/main/docs/specs/IDE-execution.md#launch-profile-processing-project-launch-configuration
