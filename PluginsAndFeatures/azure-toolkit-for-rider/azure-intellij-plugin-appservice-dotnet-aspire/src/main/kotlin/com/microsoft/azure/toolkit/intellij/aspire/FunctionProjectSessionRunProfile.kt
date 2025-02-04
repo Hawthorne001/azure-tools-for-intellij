@@ -5,11 +5,11 @@
 package com.microsoft.azure.toolkit.intellij.aspire
 
 import com.intellij.execution.Executor
-import com.intellij.execution.configurations.RunProfileState
 import com.intellij.execution.process.ProcessListener
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.aspire.sessionHost.projectLaunchers.ProjectSessionProfile
+import com.jetbrains.rider.aspire.sessionHost.projectLaunchers.ProjectSessionRunProfileState
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
 import java.nio.file.Path
@@ -26,7 +26,12 @@ class FunctionProjectSessionRunProfile(
     override fun getState(
         executor: Executor,
         environment: ExecutionEnvironment
-    ): RunProfileState? {
-        TODO("Not yet implemented")
-    }
+    ) = ProjectSessionRunProfileState(
+        sessionId,
+        dotnetExecutable,
+        dotnetRuntime,
+        environment,
+        sessionProcessEventListener,
+        sessionProcessLifetime
+    )
 }
