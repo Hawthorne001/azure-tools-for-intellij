@@ -276,16 +276,15 @@ class FunctionSessionExecutableFactory(private val project: Project) {
         defaultArguments: List<String>,
         launchProfileArguments: String?
     ) = buildString {
+        if (defaultArguments.isNotEmpty()) {
+            append(ParametersListUtil.join(defaultArguments))
+            append(" ")
+        }
         if (sessionArguments != null) {
             if (sessionArguments.isNotEmpty()) {
                 append(ParametersListUtil.join(sessionArguments.toList()))
             }
         } else {
-            if (defaultArguments.isNotEmpty()) {
-                append(ParametersListUtil.join(defaultArguments))
-                append(" ")
-            }
-
             if (!launchProfileArguments.isNullOrEmpty()) {
                 append(launchProfileArguments)
             }

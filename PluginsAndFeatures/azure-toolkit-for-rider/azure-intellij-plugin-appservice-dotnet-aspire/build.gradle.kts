@@ -22,5 +22,7 @@ dependencies {
         bundledPlugins(listOf("me.rafaelldi.aspire"))
     }
 
+    implementation(libs.azureToolkitIdeCommonLib)
+    implementation(project(path = ":azure-intellij-plugin-lib"))
     implementation(project(path = ":azure-intellij-plugin-appservice-dotnet"))
 }

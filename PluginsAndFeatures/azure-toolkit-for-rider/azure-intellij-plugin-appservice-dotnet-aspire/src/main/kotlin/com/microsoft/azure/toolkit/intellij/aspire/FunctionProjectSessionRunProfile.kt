@@ -12,7 +12,10 @@ import com.jetbrains.rider.aspire.sessionHost.projectLaunchers.ProjectSessionPro
 import com.jetbrains.rider.aspire.sessionHost.projectLaunchers.ProjectSessionRunProfileState
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
+import com.microsoft.azure.toolkit.ide.common.icon.AzureIcons
+import com.microsoft.azure.toolkit.intellij.common.IntelliJAzureIcons
 import java.nio.file.Path
+import javax.swing.Icon
 
 class FunctionProjectSessionRunProfile(
     private val sessionId: String,
@@ -23,6 +26,9 @@ class FunctionProjectSessionRunProfile(
     private val sessionProcessLifetime: Lifetime,
     aspireHostProjectPath: Path?
 ) : ProjectSessionProfile(projectName, dotnetExecutable, aspireHostProjectPath) {
+
+    override fun getIcon(): Icon = IntelliJAzureIcons.getIcon(AzureIcons.FunctionApp.RUN)
+
     override fun getState(
         executor: Executor,
         environment: ExecutionEnvironment

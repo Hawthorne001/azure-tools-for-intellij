@@ -8,6 +8,7 @@ import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.process.ProcessListener
 import com.intellij.execution.runners.ExecutionEnvironmentBuilder
+import com.intellij.execution.runners.ProgramRunner
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
@@ -119,8 +120,15 @@ class FunctionProjectSessionProcessLauncher : SessionProcessLauncherExtension {
             sessionProcessLifetime,
             aspireHostProjectPath
         )
+        val debugRunner = ProgramRunner.findRunnerById(FunctionProjectSessionDebugProgramRunner.ID)
+        if (debugRunner == null) {
+            LOG.warn("Unable to find runner: ${FunctionProjectSessionDebugProgramRunner.ID}")
+            return
+        }
+
         val environment = ExecutionEnvironmentBuilder
             .createOrNull(project, DefaultDebugExecutor.getDebugExecutorInstance(), profile)
+            ?.runner(debugRunner)
             ?.build()
         if (environment == null) {
             LOG.warn("Unable to create debug execution environment")
