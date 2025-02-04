@@ -7,8 +7,10 @@ package com.microsoft.azure.toolkit.intellij.aspire
 import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.process.ProcessListener
+import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.runners.ExecutionEnvironmentBuilder
 import com.intellij.execution.runners.ProgramRunner
+import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
@@ -19,10 +21,7 @@ import com.jetbrains.rider.aspire.run.AspireHostConfiguration
 import com.jetbrains.rider.aspire.sessionHost.projectLaunchers.SessionProcessLauncherExtension
 import com.jetbrains.rider.model.runnableProjectsModel
 import com.jetbrains.rider.projectView.solution
-import com.jetbrains.rider.run.configurations.RunnableProjectKinds
 import com.jetbrains.rider.runtime.DotNetExecutable
-import com.jetbrains.rider.runtime.DotNetRuntime
-import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -85,6 +84,8 @@ class FunctionProjectSessionProcessLauncher : SessionProcessLauncherExtension {
             return
         }
 
+        setProgramCallbacks(environment)
+
         withContext(Dispatchers.EDT) {
             environment.runner.execute(environment)
         }
@@ -135,6 +136,8 @@ class FunctionProjectSessionProcessLauncher : SessionProcessLauncherExtension {
             return
         }
 
+        setProgramCallbacks(environment)
+
         withContext(Dispatchers.EDT) {
             environment.runner.execute(environment)
         }
@@ -153,22 +156,6 @@ class FunctionProjectSessionProcessLauncher : SessionProcessLauncherExtension {
         }
 
         return executable
-    }
-
-    private fun getDotNetRuntime(executable: DotNetExecutable, project: Project): DotNetCoreRuntime? {
-        val runtime = DotNetRuntime.detectRuntimeForProject(
-            project,
-            RunnableProjectKinds.DotNetCore,
-            RiderDotNetActiveRuntimeHost.getInstance(project),
-            executable.runtimeType,
-            executable.exePath,
-            executable.projectTfm
-        )?.runtime as? DotNetCoreRuntime
-        if (runtime == null) {
-            LOG.warn("Unable to detect runtime for executable: ${executable.exePath}")
-        }
-
-        return runtime
     }
 
     private fun getRunProfile(
@@ -206,4 +193,15 @@ class FunctionProjectSessionProcessLauncher : SessionProcessLauncherExtension {
         sessionProcessLifetime,
         aspireHostProjectPath
     )
+
+    private fun setProgramCallbacks(environment: ExecutionEnvironment) {
+        environment.callback = object : ProgramRunner.Callback {
+            override fun processStarted(runContentDescriptor: RunContentDescriptor?) {
+                runContentDescriptor?.apply {
+                    isActivateToolWindowWhenAdded = false
+                    isAutoFocusContent = false
+                }
+            }
+        }
+    }
 }

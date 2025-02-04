@@ -29,6 +29,7 @@ class FunctionProjectSessionDebugProgramRunner : DotNetDebugRunner() {
         if (state is RequiresPreparationRunProfileState) {
             state.prepareExecution(environment)
         }
+
         return super.executeAsync(environment, state)
     }
 }
