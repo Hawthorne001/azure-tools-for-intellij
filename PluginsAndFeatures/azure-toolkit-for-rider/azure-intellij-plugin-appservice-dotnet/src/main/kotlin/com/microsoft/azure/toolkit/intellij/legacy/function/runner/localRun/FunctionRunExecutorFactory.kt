@@ -123,6 +123,10 @@ class FunctionRunExecutorFactory(
             if (parameters.trackUrl) getApplicationUrl(launchProfile?.content, effectiveArguments, functionLocalSettings)
             else parameters.startBrowserParameters.url
 
+        val effectiveLaunchBrowser =
+            if (parameters.trackBrowserLaunch) getLaunchBrowserFlag(launchProfile?.content)
+            else parameters.startBrowserParameters.startAfterLaunch
+
         val projectProcessOptions = ProjectProcessOptions(
             File(runnableProject.projectFilePath),
             File(effectiveWorkingDirectory)
@@ -152,7 +156,7 @@ class FunctionRunExecutorFactory(
             parameters.useExternalConsole,
             executableParameters.environmentVariables,
             true,
-            getStartBrowserAction(effectiveUrl, parameters.startBrowserParameters),
+            getStartBrowserAction(effectiveUrl, effectiveLaunchBrowser, parameters.startBrowserParameters),
             coreToolsExecutablePath,
             "",
             true
@@ -161,12 +165,13 @@ class FunctionRunExecutorFactory(
 
     private fun getStartBrowserAction(
         browserUrl: String,
+        launchBrowser: Boolean,
         params: DotNetStartBrowserParameters
     ): (ExecutionEnvironment, RunProfile, ProcessHandler) -> Unit =
         { _, runProfile, processHandler ->
-            if (params.startAfterLaunch && runProfile is RunConfiguration) {
+            if (launchBrowser && runProfile is RunConfiguration) {
                 val startBrowserSettings = StartBrowserSettings().apply {
-                    isSelected = params.startAfterLaunch
+                    isSelected = true
                     url = browserUrl
                     browser = params.browser
                     isStartJavaScriptDebugger = params.withJavaScriptDebugger

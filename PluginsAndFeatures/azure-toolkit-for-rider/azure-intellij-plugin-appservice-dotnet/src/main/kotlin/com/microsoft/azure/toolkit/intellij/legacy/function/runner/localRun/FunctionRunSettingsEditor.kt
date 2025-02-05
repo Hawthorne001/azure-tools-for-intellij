@@ -58,6 +58,7 @@ class FunctionRunSettingsEditor(private val project: Project) :
             envs = viewModel.environmentVariablesEditor.envs.value
             useExternalConsole = viewModel.useExternalConsoleEditor.isSelected.value
             trackUrl = viewModel.trackUrl
+            trackBrowserLaunch = viewModel.trackBrowserLaunch
             startBrowserParameters.url = viewModel.urlEditor.text.value
             startBrowserParameters.browser = viewModel.dotNetBrowserSettingsEditor.settings.value.myBrowser
             startBrowserParameters.startAfterLaunch =
@@ -82,6 +83,7 @@ class FunctionRunSettingsEditor(private val project: Project) :
                 envs,
                 useExternalConsole,
                 trackUrl,
+                trackBrowserLaunch,
                 startBrowserParameters
             )
         }

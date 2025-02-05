@@ -72,3 +72,8 @@ fun getApplicationUrl(
 
     return ""
 }
+
+internal fun getLaunchBrowserFlag(profile: LaunchSettingsJson.Profile?): Boolean {
+    val launchBrowser = profile?.launchBrowser
+    return launchBrowser == true
+}

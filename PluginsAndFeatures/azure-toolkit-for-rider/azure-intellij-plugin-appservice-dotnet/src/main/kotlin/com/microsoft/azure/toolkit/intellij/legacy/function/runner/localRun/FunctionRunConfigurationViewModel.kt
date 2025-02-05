@@ -76,6 +76,7 @@ class FunctionRunConfigurationViewModel(
     var trackWorkingDirectory = true
     var trackEnvs = true
     var trackUrl = true
+    var trackBrowserLaunch = true
 
     private var functionLocalSettings: FunctionLocalSettings? = null
 
@@ -103,6 +104,7 @@ class FunctionRunConfigurationViewModel(
         workingDirectorySelector.path.advise(lifetime) { handleWorkingDirectoryChange() }
         environmentVariablesEditor.envs.advise(lifetime) { handleEnvValueChange() }
         urlEditor.text.advise(lifetime) { handleUrlValueChange() }
+        dotNetBrowserSettingsEditor.settings.advise(lifetime) { handleBrowserSettingsChange() }
     }
 
     private suspend fun handleProjectSelection(runnableProject: RunnableProject) {
@@ -170,10 +172,18 @@ class FunctionRunConfigurationViewModel(
         }
         if (trackUrl) {
             val applicationUrl = getApplicationUrl(profile?.content, projectOutput, functionLocalSettings)
-            urlEditor.text.value = applicationUrl
-            urlEditor.defaultValue.value = applicationUrl
-            dotNetBrowserSettingsEditor.settings.value =
-                BrowserSettings(profile?.content?.launchBrowser == true, false, null)
+            urlEditor.text.set(applicationUrl)
+            urlEditor.defaultValue.set(applicationUrl)
+        }
+        if (trackBrowserLaunch) {
+            val launchBrowser = getLaunchBrowserFlag(profile?.content)
+            val currentSettings = dotNetBrowserSettingsEditor.settings.value
+            val browserSettings = BrowserSettings(
+                launchBrowser,
+                currentSettings.withJavaScriptDebugger,
+                currentSettings.myBrowser
+            )
+            dotNetBrowserSettingsEditor.settings.set(browserSettings)
         }
     }
 
@@ -217,6 +227,19 @@ class FunctionRunConfigurationViewModel(
         trackUrl = urlEditor.text.value == applicationUrl
     }
 
+    private fun handleBrowserSettingsChange() {
+        if (!isLoaded) return
+
+        val launchProfile = launchProfileSelector.profile.valueOrNull
+        if (launchProfile == null) {
+            trackBrowserLaunch = false
+            return
+        }
+
+        val launchBrowser = getLaunchBrowserFlag(launchProfile.content)
+        trackBrowserLaunch = dotNetBrowserSettingsEditor.settings.value.startAfterLaunch == launchBrowser
+    }
+
     fun reset(
         projectFilePath: String,
         projectTfm: String,
@@ -230,6 +253,7 @@ class FunctionRunConfigurationViewModel(
         envs: Map<String, String>,
         useExternalConsole: Boolean,
         trackUrl: Boolean,
+        trackBrowserLaunch: Boolean,
         dotNetStartBrowserParameters: DotNetStartBrowserParameters
     ) {
         isLoaded = false
@@ -239,6 +263,7 @@ class FunctionRunConfigurationViewModel(
         this.trackWorkingDirectory = trackWorkingDirectory
         this.trackEnvs = trackEnvs
         this.trackUrl = trackUrl
+        this.trackBrowserLaunch = trackBrowserLaunch
 
         currentEditSessionLifetime.launch(Dispatchers.EDT + ModalityState.current().asContextElement()) {
             val projectList = runnableProjectsModel
@@ -250,15 +275,15 @@ class FunctionRunConfigurationViewModel(
             functionNamesEditor.text.value = functionNames
             functionNamesEditor.defaultValue.value = ""
 
-            dotNetBrowserSettingsEditor.settings.set(
-                BrowserSettings(
-                    dotNetStartBrowserParameters.startAfterLaunch,
-                    dotNetStartBrowserParameters.withJavaScriptDebugger,
-                    dotNetStartBrowserParameters.browser
-                )
-            )
-
             if (projectFilePath.isEmpty() || projectList.none { it.projectFilePath == projectFilePath }) {
+                dotNetBrowserSettingsEditor.settings.set(
+                    BrowserSettings(
+                        dotNetStartBrowserParameters.startAfterLaunch,
+                        dotNetStartBrowserParameters.withJavaScriptDebugger,
+                        dotNetStartBrowserParameters.browser
+                    )
+                )
+
                 if (projectFilePath.isEmpty()) {
                     addFirstFunctionProject(projectList)
                 } else {
@@ -278,6 +303,7 @@ class FunctionRunConfigurationViewModel(
                     envs,
                     useExternalConsole,
                     trackUrl,
+                    trackBrowserLaunch,
                     dotNetStartBrowserParameters
                 )
             }
@@ -326,6 +352,7 @@ class FunctionRunConfigurationViewModel(
         envs: Map<String, String>,
         useExternalConsole: Boolean,
         trackUrl: Boolean,
+        trackBrowserLaunch: Boolean,
         dotNetStartBrowserParameters: DotNetStartBrowserParameters
     ) {
         val runnableProject = projectList.singleOrNull {
@@ -386,8 +413,18 @@ class FunctionRunConfigurationViewModel(
         val effectiveUrl =
             if (trackUrl) getApplicationUrl(selectedProfile?.content, effectiveArguments, functionLocalSettings)
             else dotNetStartBrowserParameters.url
-        urlEditor.defaultValue.value = effectiveUrl
-        urlEditor.text.value = effectiveUrl
+        urlEditor.defaultValue.set(effectiveUrl)
+        urlEditor.text.set(effectiveUrl)
+
+        val effectiveLaunchBrowser =
+            if (trackBrowserLaunch) getLaunchBrowserFlag(selectedProfile?.content)
+            else dotNetStartBrowserParameters.startAfterLaunch
+        val browserSettings = BrowserSettings(
+            effectiveLaunchBrowser,
+            dotNetStartBrowserParameters.withJavaScriptDebugger,
+            dotNetStartBrowserParameters.browser
+        )
+        dotNetBrowserSettingsEditor.settings.set(browserSettings)
     }
 
     private fun getSelectedProjectOutput(): ProjectOutput? {

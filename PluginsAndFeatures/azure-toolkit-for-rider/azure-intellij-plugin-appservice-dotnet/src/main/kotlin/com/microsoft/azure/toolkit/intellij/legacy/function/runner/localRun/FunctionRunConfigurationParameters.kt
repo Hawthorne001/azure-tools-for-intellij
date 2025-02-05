@@ -37,6 +37,7 @@ class FunctionRunConfigurationParameters(
     var envs: Map<String, String>,
     var useExternalConsole: Boolean,
     var trackUrl: Boolean,
+    var trackBrowserLaunch: Boolean,
     var startBrowserParameters: DotNetStartBrowserParameters
 ) {
     companion object {
@@ -50,6 +51,7 @@ class FunctionRunConfigurationParameters(
         private const val WORKING_DIRECTORY_TRACKING = "PROJECT_WORKING_DIRECTORY_TRACKING"
         private const val TRACK_ENVS = "TRACK_ENVS"
         private const val TRACK_URL = "TRACK_URL"
+        private const val TRACK_BROWSER_LAUNCH = "TRACK_BROWSER_LAUNCH"
         private const val USE_EXTERNAL_CONSOLE = "USE_EXTERNAL_CONSOLE"
 
         fun createDefault(project: Project) = FunctionRunConfigurationParameters(
@@ -65,6 +67,7 @@ class FunctionRunConfigurationParameters(
             true,
             hashMapOf(),
             false,
+            true,
             true,
             DotNetStartBrowserParameters()
         )
@@ -118,6 +121,8 @@ class FunctionRunConfigurationParameters(
         useExternalConsole = useExternalConsoleString == "1"
         val trackUrlString = JDOMExternalizerUtil.readField(element, TRACK_URL) ?: ""
         trackUrl = trackUrlString != "0"
+        val trackBrowserLaunchString = JDOMExternalizerUtil.readField(element, TRACK_BROWSER_LAUNCH) ?: ""
+        trackBrowserLaunch = trackBrowserLaunchString != "0"
         startBrowserParameters = DotNetStartBrowserParameters.readExternal(element)
     }
 
@@ -134,6 +139,7 @@ class FunctionRunConfigurationParameters(
         EnvironmentVariablesComponent.writeExternal(element, envs)
         JDOMExternalizerUtil.writeField(element, USE_EXTERNAL_CONSOLE, if (useExternalConsole) "1" else "0")
         JDOMExternalizerUtil.writeField(element, TRACK_URL, if (trackUrl) "1" else "0")
+        JDOMExternalizerUtil.writeField(element, TRACK_BROWSER_LAUNCH, if (trackBrowserLaunch) "1" else "0")
         startBrowserParameters.writeExternal(element)
     }
 
@@ -151,6 +157,7 @@ class FunctionRunConfigurationParameters(
         envs,
         useExternalConsole,
         trackUrl,
+        trackBrowserLaunch,
         startBrowserParameters.copy()
     )
 
@@ -173,6 +180,7 @@ class FunctionRunConfigurationParameters(
         envs = getEnvironmentVariables(launchProfile?.content)
         useExternalConsole = false
         trackUrl = true
+        trackBrowserLaunch = true
         startBrowserParameters.apply {
             url = getApplicationUrl(launchProfile?.content, projectOutput, localFunctionSettings)
             startAfterLaunch = launchProfile?.content?.launchBrowser == true
