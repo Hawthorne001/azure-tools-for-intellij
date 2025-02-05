@@ -384,7 +384,7 @@ class FunctionRunConfigurationViewModel(
         environmentVariablesEditor.envs.set(effectiveEnvs)
 
         val effectiveUrl =
-            if (trackUrl) getApplicationUrl(selectedProfile?.content, selectedOutput, functionLocalSettings)
+            if (trackUrl) getApplicationUrl(selectedProfile?.content, effectiveArguments, functionLocalSettings)
             else dotNetStartBrowserParameters.url
         urlEditor.defaultValue.value = effectiveUrl
         urlEditor.text.value = effectiveUrl

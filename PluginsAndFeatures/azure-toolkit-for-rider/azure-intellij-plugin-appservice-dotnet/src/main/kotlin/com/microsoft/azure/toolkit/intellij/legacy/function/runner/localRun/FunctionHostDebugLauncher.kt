@@ -6,6 +6,7 @@ package com.microsoft.azure.toolkit.intellij.legacy.function.runner.localRun
 
 import com.intellij.execution.DefaultExecutionResult
 import com.intellij.execution.ExecutionResult
+import com.intellij.execution.process.ProcessListener
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
@@ -66,11 +67,13 @@ class FunctionHostDebugLauncher(private val project: Project) {
      *
      * @param executable The [DotNetExecutable] object representing the function host executable to run.
      * @param dotNetRuntime The [DotNetRuntime] object representing the .NET runtime.
+     * @param processListener The [ProcessListener] object to attach to the created process.
      * @return A Pair containing the [ExecutionResult] and the process id, if obtained.
      */
     suspend fun startProcessWaitingForDebugger(
         executable: DotNetExecutable,
-        dotNetRuntime: DotNetRuntime
+        dotNetRuntime: DotNetRuntime,
+        processListener: ProcessListener? = null
     ): Pair<ExecutionResult, Int?> {
         val temporaryPidFile = withContext(Dispatchers.IO) { createTemporaryPidFile() }
         LOG.trace { "Created temporary file ${temporaryPidFile.absolutePath}" }
@@ -87,6 +90,7 @@ class FunctionHostDebugLauncher(private val project: Project) {
         val commandLine = processExecutable.createRunCommandLine(dotNetRuntime)
         LOG.debug { "Prepared commandLine: ${commandLine.commandLineString}" }
         val handler = TerminalProcessHandler(project, commandLine, commandLine.commandLineString)
+        processListener?.let { handler.addProcessListener(it) }
         val console = createConsole(ConsoleKind.Normal, handler, project)
         val executionResult = DefaultExecutionResult(console, handler)
 
