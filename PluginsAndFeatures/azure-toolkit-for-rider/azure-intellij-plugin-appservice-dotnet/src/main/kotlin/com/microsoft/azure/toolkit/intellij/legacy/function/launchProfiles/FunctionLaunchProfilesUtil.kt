@@ -12,18 +12,15 @@ import org.apache.http.client.utils.URIBuilder
 
 internal fun getArguments(profile: LaunchSettingsJson.Profile?, projectOutput: ProjectOutput?) = buildString {
     val defaultArguments = projectOutput?.defaultArguments
-    val commandLineArgs = profile?.commandLineArgs
+    val profileArgs = profile?.commandLineArgs
 
-    if (defaultArguments.isNullOrEmpty()) {
-        append(commandLineArgs ?: "")
-    } else {
-        if (defaultArguments.isNotEmpty()) {
-            append(ParametersListUtil.join(defaultArguments))
-            append(" ")
-        }
-        if (commandLineArgs != null) {
-            append(commandLineArgs)
-        }
+    if (!defaultArguments.isNullOrEmpty()) {
+        append(ParametersListUtil.join(defaultArguments))
+        append(" ")
+    }
+
+    if (!profileArgs.isNullOrEmpty()) {
+        append(profileArgs)
     }
 }
 
@@ -31,11 +28,13 @@ fun getWorkingDirectory(profile: LaunchSettingsJson.Profile?, projectOutput: Pro
     return profile?.workingDirectory ?: projectOutput?.workingDirectory ?: ""
 }
 
-internal fun getEnvironmentVariables(profile: LaunchSettingsJson.Profile?) = profile
-    ?.environmentVariables
-    ?.mapNotNull { it.value?.let { value -> it.key to value } }
-    ?.toMap()
-    ?: emptyMap()
+internal fun getEnvironmentVariables(profile: LaunchSettingsJson.Profile?) = buildMap {
+    profile?.environmentVariables?.forEach {
+        if (it.value != null) {
+            put(it.key, it.value)
+        }
+    }
+}
 
 private val portRegex = Regex("(--port|-p) (\\d+)", RegexOption.IGNORE_CASE)
 
