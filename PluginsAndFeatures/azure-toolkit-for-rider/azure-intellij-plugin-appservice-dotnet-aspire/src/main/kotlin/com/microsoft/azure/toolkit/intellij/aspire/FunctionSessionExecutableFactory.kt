@@ -14,7 +14,7 @@ import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.util.io.systemIndependentPath
-import com.jetbrains.rider.aspire.generated.SessionModel
+import com.jetbrains.rider.aspire.generated.CreateSessionRequest
 import com.jetbrains.rider.aspire.run.AspireHostConfiguration
 import com.jetbrains.rider.aspire.settings.AspireSettings
 import com.jetbrains.rider.aspire.util.MSBuildPropertyService
@@ -48,7 +48,7 @@ class FunctionSessionExecutableFactory(private val project: Project) {
     }
 
     suspend fun createExecutable(
-        sessionModel: SessionModel,
+        sessionModel: CreateSessionRequest,
         hostRunConfiguration: AspireHostConfiguration?,
         addBrowserAction: Boolean
     ): DotNetExecutable? {
@@ -75,7 +75,7 @@ class FunctionSessionExecutableFactory(private val project: Project) {
     private suspend fun getExecutableForRunnableProject(
         sessionProjectPath: Path,
         runnableProject: RunnableProject,
-        sessionModel: SessionModel,
+        sessionModel: CreateSessionRequest,
         hostRunConfiguration: AspireHostConfiguration?,
         addBrowserAction: Boolean
     ): DotNetExecutable? {
@@ -138,7 +138,7 @@ class FunctionSessionExecutableFactory(private val project: Project) {
 
     private suspend fun getExecutableForExternalProject(
         sessionProjectPath: Path,
-        sessionModel: SessionModel,
+        sessionModel: CreateSessionRequest,
         hostRunConfiguration: AspireHostConfiguration?,
         addBrowserAction: Boolean
     ): DotNetExecutable? {

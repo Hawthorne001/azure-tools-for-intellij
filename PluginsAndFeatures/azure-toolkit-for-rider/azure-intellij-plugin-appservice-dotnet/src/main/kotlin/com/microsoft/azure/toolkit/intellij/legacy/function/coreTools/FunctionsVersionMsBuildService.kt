@@ -7,6 +7,7 @@ package com.microsoft.azure.toolkit.intellij.legacy.function.coreTools
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
+import com.intellij.util.concurrency.annotations.RequiresEdt
 import com.jetbrains.rider.azure.model.AzureFunctionsVersionRequest
 import com.jetbrains.rider.azure.model.functionAppDaemonModel
 import com.jetbrains.rider.projectView.solution
@@ -25,6 +26,7 @@ class FunctionsVersionMsBuildService(private val project: Project) {
      *
      * @return The value of `AzureFunctionsVersion` MSBuild property.
      */
+    @RequiresEdt
     suspend fun requestAzureFunctionsVersion(projectFilePath: String) =
         project.solution
             .functionAppDaemonModel

@@ -16,7 +16,7 @@ import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.jetbrains.rd.util.lifetime.Lifetime
-import com.jetbrains.rider.aspire.generated.SessionModel
+import com.jetbrains.rider.aspire.generated.CreateSessionRequest
 import com.jetbrains.rider.aspire.run.AspireHostConfiguration
 import com.jetbrains.rider.aspire.sessionHost.projectLaunchers.SessionProcessLauncherExtension
 import com.jetbrains.rider.model.runnableProjectsModel
@@ -47,24 +47,25 @@ class FunctionProjectSessionProcessLauncher : SessionProcessLauncherExtension {
 
     override suspend fun launchRunProcess(
         sessionId: String,
-        sessionModel: SessionModel,
+        sessionModel: CreateSessionRequest,
         sessionProcessEventListener: ProcessListener,
         sessionProcessLifetime: Lifetime,
-        hostRunConfiguration: AspireHostConfiguration?,
+        aspireHostRunConfigName: String?,
         project: Project
     ) {
         LOG.trace { "Starting run session for ${sessionModel.projectPath}" }
 
+        val aspireHostRunConfig = getAspireHostRunConfiguration(aspireHostRunConfigName, project)
         val executable = getDotNetExecutable(
             sessionModel,
-            hostRunConfiguration,
+            aspireHostRunConfig,
             true,
             project
         ) ?: return
         val runtime = getDotNetRuntime(executable, project) ?: return
 
         val projectName = Path(sessionModel.projectPath).nameWithoutExtension
-        val aspireHostProjectPath = hostRunConfiguration?.let { Path(it.parameters.projectFilePath) }
+        val aspireHostProjectPath = aspireHostRunConfig?.let { Path(it.parameters.projectFilePath) }
 
         val profile = getRunProfile(
             sessionId,
@@ -93,24 +94,25 @@ class FunctionProjectSessionProcessLauncher : SessionProcessLauncherExtension {
 
     override suspend fun launchDebugProcess(
         sessionId: String,
-        sessionModel: SessionModel,
+        sessionModel: CreateSessionRequest,
         sessionProcessEventListener: ProcessListener,
         sessionProcessLifetime: Lifetime,
-        hostRunConfiguration: AspireHostConfiguration?,
+        aspireHostRunConfigName: String?,
         project: Project
     ) {
         LOG.trace { "Starting debug session for project ${sessionModel.projectPath}" }
 
+        val aspireHostRunConfig = getAspireHostRunConfiguration(aspireHostRunConfigName, project)
         val executable = getDotNetExecutable(
             sessionModel,
-            hostRunConfiguration,
+            aspireHostRunConfig,
             true,
             project
         ) ?: return
         val runtime = getDotNetRuntime(executable, project) ?: return
 
         val projectName = Path(sessionModel.projectPath).nameWithoutExtension
-        val aspireHostProjectPath = hostRunConfiguration?.let { Path(it.parameters.projectFilePath) }
+        val aspireHostProjectPath = aspireHostRunConfig?.let { Path(it.parameters.projectFilePath) }
 
         val profile = getDebugProfile(
             sessionId,
@@ -144,7 +146,7 @@ class FunctionProjectSessionProcessLauncher : SessionProcessLauncherExtension {
     }
 
     private suspend fun getDotNetExecutable(
-        sessionModel: SessionModel,
+        sessionModel: CreateSessionRequest,
         hostRunConfiguration: AspireHostConfiguration?,
         addBrowserAction: Boolean,
         project: Project

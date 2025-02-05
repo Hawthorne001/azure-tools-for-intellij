@@ -8,7 +8,7 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.util.execution.ParametersListUtil
-import com.jetbrains.rider.aspire.generated.SessionModel
+import com.jetbrains.rider.aspire.generated.CreateSessionRequest
 import com.jetbrains.rider.aspire.generated.SessionEnvironmentVariable
 import com.jetbrains.rider.model.RunnableProject
 import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJson
@@ -22,7 +22,7 @@ private val LOG = Logger.getInstance("#com.microsoft.azure.toolkit.intellij.aspi
 
 //See: https://github.com/dotnet/aspire/blob/main/docs/specs/IDE-execution.md#launch-profile-processing-project-launch-configuration
 suspend fun getLaunchProfile(
-    sessionModel: SessionModel,
+    sessionModel: CreateSessionRequest,
     runnableProject: RunnableProject,
     project: Project
 ): LaunchSettingsJson.Profile? {
@@ -38,7 +38,7 @@ suspend fun getLaunchProfile(
 
 //See: https://github.com/dotnet/aspire/blob/main/docs/specs/IDE-execution.md#launch-profile-processing-project-launch-configuration
 suspend fun getLaunchProfile(
-    sessionModel: SessionModel,
+    sessionModel: CreateSessionRequest,
     sessionProjectPath: Path,
     project: Project
 ): LaunchSettingsJson.Profile? {
@@ -52,7 +52,7 @@ suspend fun getLaunchProfile(
     return launchSettings.profiles?.get(launchProfileKey)
 }
 
-private fun getLaunchProfileKey(sessionModel: SessionModel): String? {
+private fun getLaunchProfileKey(sessionModel: CreateSessionRequest): String? {
     if (sessionModel.disableLaunchProfile) {
         LOG.trace { "Launch profile disabled" }
         return null

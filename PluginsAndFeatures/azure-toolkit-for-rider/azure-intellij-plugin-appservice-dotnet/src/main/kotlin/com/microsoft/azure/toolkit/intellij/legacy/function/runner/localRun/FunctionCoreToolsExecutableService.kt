@@ -8,6 +8,7 @@ import com.intellij.ide.actions.OpenFileAction
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationAction
 import com.intellij.notification.NotificationType
+import com.intellij.openapi.application.EDT
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.debug
@@ -50,9 +51,11 @@ class FunctionCoreToolsExecutableService(private val project: Project) {
         projectFilePath: Path,
         projectTfm: String?
     ): FunctionCoreToolsExecutable? {
-        val msBuildVersionProperty = FunctionsVersionMsBuildService
-            .getInstance(project)
-            .requestAzureFunctionsVersion(projectFilePath.absolutePathString())
+        val msBuildVersionProperty = withContext(Dispatchers.EDT) {
+            FunctionsVersionMsBuildService
+                .getInstance(project)
+                .requestAzureFunctionsVersion(projectFilePath.absolutePathString())
+        }
         if (msBuildVersionProperty == null) {
             LOG.warn("Could not determine project MSBuild property '${PROPERTY_AZURE_FUNCTIONS_VERSION}'")
             return null
