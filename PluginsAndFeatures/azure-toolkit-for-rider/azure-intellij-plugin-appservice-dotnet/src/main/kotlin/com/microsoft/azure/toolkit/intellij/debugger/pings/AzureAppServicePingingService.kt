@@ -2,6 +2,8 @@
  * Copyright 2018-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the MIT license.
  */
 
+@file:Suppress("UnstableApiUsage")
+
 package com.microsoft.azure.toolkit.intellij.debugger.pings
 
 import com.intellij.openapi.components.Service
@@ -37,11 +39,16 @@ class AzureAppServicePingingService(private val cs: CoroutineScope) {
     }
 
     private fun getFunctionApp(debugProcess: XDebugProcess): FunctionAppBase<*, *, *>? {
-        val state = (debugProcess.session as? XDebugSessionImpl)
-            ?.executionEnvironment
-            ?.state as? AttachSshDebugProfileStateBase ?: return null
+        try {
+            val state = (debugProcess.session as? XDebugSessionImpl)
+                ?.executionEnvironment
+                ?.state as? AttachSshDebugProfileStateBase
+                ?: return null
 
-        return (state.attachHost as? AppServiceAttachHost<FunctionApp>)?.appServiceApp
+            return (state.attachHost as? AppServiceAttachHost<FunctionApp>)?.appServiceApp
+        } catch (_: UnsupportedOperationException) {
+            return null
+        }
     }
 }
 
