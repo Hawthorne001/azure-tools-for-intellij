@@ -29,10 +29,8 @@ fun getWorkingDirectory(profile: LaunchSettingsJson.Profile?, projectOutput: Pro
 }
 
 internal fun getEnvironmentVariables(profile: LaunchSettingsJson.Profile?) = buildMap {
-    profile?.environmentVariables?.forEach {
-        if (it.value != null) {
-            put(it.key, it.value)
-        }
+    profile?.environmentVariables?.forEach { pair ->
+        pair.value?.let { put(pair.key, it) }
     }
 }
 
