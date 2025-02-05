@@ -36,7 +36,7 @@ class IsolatedFunctionProjectSessionDebugProfileState(
 
         functionHostExecutionResult = executionResult
 
-        sessionProcessLifetime.onTermination {
+        sessionProcessLifetime.onTerminationIfAlive {
             if (!executionResult.processHandler.isProcessTerminated && !executionResult.processHandler.isProcessTerminated) {
                 LOG.trace("Killing Function session process handler (id: $sessionId)")
                 executionResult.processHandler.kill()
