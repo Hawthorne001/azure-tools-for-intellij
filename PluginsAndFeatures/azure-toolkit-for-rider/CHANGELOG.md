@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- Initial .NET Aspire support
+
 ## [4.4.2] - 2025-01-31
 
 ### Changed
