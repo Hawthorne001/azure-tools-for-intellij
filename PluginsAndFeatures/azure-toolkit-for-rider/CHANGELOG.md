@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [4.4.3] - 2025-02-07
+
 ### Added
 
 - Initial .NET Aspire support
@@ -276,7 +278,8 @@
 - Reimplement Azure Functions Core Tools integration
 - Reimplement Azure Functions templates
 
-[Unreleased]: https://github.com/JetBrains/azure-tools-for-intellij/compare/v4.4.2...HEAD
+[Unreleased]: https://github.com/JetBrains/azure-tools-for-intellij/compare/v4.4.3...HEAD
+[4.4.3]: https://github.com/JetBrains/azure-tools-for-intellij/compare/v4.4.2...v4.4.3
 [4.4.2]: https://github.com/JetBrains/azure-tools-for-intellij/compare/v4.4.1...v4.4.2
 [4.4.1]: https://github.com/JetBrains/azure-tools-for-intellij/compare/v4.4.0...v4.4.1
 [4.4.0]: https://github.com/JetBrains/azure-tools-for-intellij/compare/v4.3.8...v4.4.0
