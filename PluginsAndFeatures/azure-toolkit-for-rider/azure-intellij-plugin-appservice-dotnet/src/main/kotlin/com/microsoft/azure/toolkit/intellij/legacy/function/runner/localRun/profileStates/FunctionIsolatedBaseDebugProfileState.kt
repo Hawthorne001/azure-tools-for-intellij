@@ -26,6 +26,7 @@ import com.jetbrains.rider.run.AttachDebugProcessAwareProfileStateBase
 import com.jetbrains.rider.run.ConsoleKind
 import com.jetbrains.rider.run.IDotNetDebugProfileState
 import com.jetbrains.rider.run.configurations.RequiresPreparationRunProfileState
+import com.jetbrains.rider.run.kill
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.DotNetRuntime
 import com.microsoft.azure.toolkit.intellij.legacy.function.runner.localRun.FunctionHostDebugLauncher
@@ -91,6 +92,8 @@ abstract class FunctionIsolatedBaseDebugProfileState(
                 NotificationType.ERROR
             )
                 .notify(environment.project)
+
+            executionResult.processHandler.kill()
 
             return null
         }
