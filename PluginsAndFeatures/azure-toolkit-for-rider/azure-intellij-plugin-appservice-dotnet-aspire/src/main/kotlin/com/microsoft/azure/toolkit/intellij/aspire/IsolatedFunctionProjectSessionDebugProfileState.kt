@@ -31,8 +31,11 @@ class IsolatedFunctionProjectSessionDebugProfileState(
     override val consoleKind = ConsoleKind.Normal
 
     override suspend fun prepareExecution(environment: ExecutionEnvironment) {
-        val (executionResult, pid) = launchFunctionHostWaitingForDebugger(environment, sessionProcessEventListener)
-            ?: return
+        val (executionResult, pid) = launchFunctionHostWaitingForDebugger(
+            environment,
+            sessionProcessEventListener,
+            true
+        ) ?: return
 
         functionHostExecutionResult = executionResult
 

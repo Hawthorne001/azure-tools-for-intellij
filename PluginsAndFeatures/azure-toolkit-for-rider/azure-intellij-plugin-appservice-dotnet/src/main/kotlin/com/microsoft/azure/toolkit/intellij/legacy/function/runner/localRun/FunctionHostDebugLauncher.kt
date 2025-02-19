@@ -14,6 +14,7 @@ import com.intellij.openapi.diagnostic.debug
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.util.execution.ParametersListUtil
 import com.jetbrains.rider.run.ConsoleKind
@@ -68,12 +69,14 @@ class FunctionHostDebugLauncher(private val project: Project) {
      * @param executable The [DotNetExecutable] object representing the function host executable to run.
      * @param dotNetRuntime The [DotNetRuntime] object representing the .NET runtime.
      * @param processListener The [ProcessListener] object to attach to the created process.
+     * @param modifyProcessMessageLineEndings Flag to change the process message line endings to `\r\n`
      * @return A Pair containing the [ExecutionResult] and the process id, if obtained.
      */
     suspend fun startProcessWaitingForDebugger(
         executable: DotNetExecutable,
         dotNetRuntime: DotNetRuntime,
-        processListener: ProcessListener? = null
+        processListener: ProcessListener? = null,
+        modifyProcessMessageLineEndings: Boolean = false
     ): Pair<ExecutionResult, Int?> {
         val temporaryPidFile = withContext(Dispatchers.IO) { createTemporaryPidFile() }
         LOG.trace { "Created temporary file ${temporaryPidFile.absolutePath}" }
@@ -89,7 +92,14 @@ class FunctionHostDebugLauncher(private val project: Project) {
 
         val commandLine = processExecutable.createRunCommandLine(dotNetRuntime)
         LOG.debug { "Prepared commandLine: ${commandLine.commandLineString}" }
-        val handler = TerminalProcessHandler(project, commandLine, commandLine.commandLineString)
+        val handler = object : TerminalProcessHandler(project, commandLine, commandLine.commandLineString) {
+            override fun notifyTextAvailable(text: String, outputType: Key<*>) {
+                val modifiedText =
+                    if (modifyProcessMessageLineEndings) text.lineSequence().joinToString("\r\n")
+                    else text
+                super.notifyTextAvailable(modifiedText, outputType)
+            }
+        }
         processListener?.let { handler.addProcessListener(it) }
         val console = createConsole(ConsoleKind.Normal, handler, project)
         val executionResult = DefaultExecutionResult(console, handler)

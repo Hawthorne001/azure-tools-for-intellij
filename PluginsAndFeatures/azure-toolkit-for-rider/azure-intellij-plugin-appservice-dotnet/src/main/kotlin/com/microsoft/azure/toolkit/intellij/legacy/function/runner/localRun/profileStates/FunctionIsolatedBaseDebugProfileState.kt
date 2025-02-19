@@ -51,13 +51,19 @@ abstract class FunctionIsolatedBaseDebugProfileState(
 
     protected suspend fun launchFunctionHostWaitingForDebugger(
         environment: ExecutionEnvironment,
-        processListener: ProcessListener? = null
+        processListener: ProcessListener? = null,
+        modifyProcessMessageLineEndings: Boolean = false
     ): Pair<ExecutionResult, Int>? {
         val launcher = FunctionHostDebugLauncher.Companion.getInstance(environment.project)
         val (executionResult, pid) =
             withBackgroundProgress(environment.project, "Waiting for Azure Functions host to start...") {
                 withContext(Dispatchers.Default) {
-                    launcher.startProcessWaitingForDebugger(dotNetExecutable, dotNetRuntime, processListener)
+                    launcher.startProcessWaitingForDebugger(
+                        dotNetExecutable,
+                        dotNetRuntime,
+                        processListener,
+                        modifyProcessMessageLineEndings
+                    )
                 }
             }
 
