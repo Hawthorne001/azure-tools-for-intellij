@@ -8,6 +8,8 @@ import org.jetbrains.intellij.platform.gradle.Constants
 import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 import org.jetbrains.intellij.platform.gradle.tasks.PrepareSandboxTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import kotlin.io.path.absolute
+import kotlin.io.path.isDirectory
 
 plugins {
     alias(libs.plugins.kotlin)
@@ -21,6 +23,14 @@ group = providers.gradleProperty("pluginGroup").get()
 version = providers.gradleProperty("pluginVersion").get()
 
 val platformVersion by extra { providers.gradleProperty("platformVersion").get() }
+
+val riderSdkPath by lazy {
+    val path = intellijPlatform.platformPath.resolve("lib/DotNetSdkForRdPlugins").absolute()
+    if (!path.isDirectory()) error("$path does not exist or not a directory")
+
+    println("Rider SDK path: $path")
+    return@lazy path
+}
 
 // Set the JVM language level used to build the project.
 kotlin {
@@ -56,6 +66,7 @@ dependencies {
     implementation(project(path = ":azure-intellij-plugin-monitor"))
     implementation(project(path = ":azure-intellij-plugin-appservice"))
     implementation(project(path = ":azure-intellij-plugin-appservice-dotnet"))
+    implementation(project(path = ":azure-intellij-plugin-appservice-dotnet-aspire"))
     implementation(project(path = ":azure-intellij-plugin-database"))
     implementation(project(path = ":azure-intellij-plugin-database-dotnet"))
     implementation(project(path = ":azure-intellij-plugin-cloud-shell"))
@@ -75,11 +86,7 @@ dependencies {
     intellijPlatform {
         rider(platformVersion, false)
         jetbrainsRuntime()
-        bundledModule("intellij.rider")
         bundledPlugins(listOf("com.jetbrains.restClient"))
-        instrumentationTools()
-        pluginVerifier()
-        zipSigner()
         testFramework(TestFrameworkType.Bundled)
     }
 }
@@ -156,15 +163,48 @@ tasks {
         gradleVersion = providers.gradleProperty("gradleVersion").get()
     }
 
+    val generateDotNetSdkProperties by registering {
+        val dotNetSdkGeneratedPropsFile = projectDir.resolve("build/DotNetSdkPath.Generated.props")
+        doLast {
+            dotNetSdkGeneratedPropsFile.writeTextIfChanged("""
+            <Project>
+              <PropertyGroup>
+                <DotNetSdkPath>$riderSdkPath</DotNetSdkPath>
+              </PropertyGroup>
+            </Project>
+            """.trimIndent())
+        }
+    }
+
+    val generateNuGetConfig by registering {
+        val nuGetConfigFile = projectDir.resolve("nuget.config")
+        doLast {
+            nuGetConfigFile.writeTextIfChanged("""
+            <?xml version="1.0" encoding="utf-8"?>
+            <!-- Auto-generated from 'generateNuGetConfig' task of old.build_gradle.kts -->
+            <!-- Run `gradlew :prepare` to regenerate -->
+            <configuration>
+                <packageSources>
+                    <add key="rider-sdk" value="$riderSdkPath" />
+                </packageSources>
+            </configuration>
+            """.trimIndent())
+        }
+    }
+
     val rdGen = ":protocol:rdgen"
+
+    val prepareDotNetPart by registering {
+        dependsOn(rdGen, generateDotNetSdkProperties, generateNuGetConfig)
+    }
 
     val dotnetBuildConfiguration = providers.gradleProperty("dotnetBuildConfiguration").get()
     val compileDotNet by registering {
-        dependsOn(rdGen)
+        dependsOn(prepareDotNetPart)
         doLast {
             exec {
                 executable("dotnet")
-                args("build", "-c", dotnetBuildConfiguration, "/clp:ErrorsOnly", "ReSharper.Azure.sln")
+                args("publish", "-c", dotnetBuildConfiguration, "/clp:ErrorsOnly", "ReSharper.Azure.sln")
             }
         }
     }
@@ -231,5 +271,15 @@ artifacts {
         }
     }) {
         builtBy(Constants.Tasks.INITIALIZE_INTELLIJ_PLATFORM_PLUGIN)
+    }
+}
+
+fun File.writeTextIfChanged(content: String) {
+    val bytes = content.toByteArray()
+
+    if (!exists() || !readBytes().contentEquals(bytes)) {
+        println("Writing $path")
+        parentFile.mkdirs()
+        writeBytes(bytes)
     }
 }

@@ -22,7 +22,6 @@ dependencies {
         rider(platformVersion, false)
         jetbrainsRuntime()
         bundledPlugins("com.intellij.modules.json")
-        instrumentationTools()
     }
 
     implementation(libs.azureToolkitLibs)

@@ -6,8 +6,8 @@ package com.microsoft.azure.toolkit.intellij.appservice.webapp
 
 import com.azure.resourcemanager.appservice.models.WebApp.DefinitionStages
 import com.azure.resourcemanager.appservice.models.WebAppRuntimeStack
-import com.microsoft.azure.toolkit.intellij.appservice.DotNetRuntime
-import com.microsoft.azure.toolkit.intellij.appservice.getDotNetRuntime
+import com.microsoft.azure.toolkit.intellij.appservice.dotnetRuntime.DotNetRuntime
+import com.microsoft.azure.toolkit.intellij.appservice.dotnetRuntime.getDotNetRuntime
 import com.microsoft.azure.toolkit.lib.appservice.model.DiagnosticConfig
 import com.microsoft.azure.toolkit.lib.appservice.model.DockerConfiguration
 import com.microsoft.azure.toolkit.lib.appservice.model.OperatingSystem

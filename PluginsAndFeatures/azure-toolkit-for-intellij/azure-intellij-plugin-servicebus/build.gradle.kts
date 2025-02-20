@@ -20,7 +20,6 @@ dependencies {
     intellijPlatform {
         rider(platformVersion, false)
         jetbrainsRuntime()
-        instrumentationTools()
     }
 
     implementation(libs.azureToolkitLibs)

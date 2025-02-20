@@ -13,7 +13,7 @@ import com.intellij.openapi.project.Project
 import com.jetbrains.rider.model.PublishableProjectModel
 import com.jetbrains.rider.model.publishableProjectsModel
 import com.jetbrains.rider.projectView.solution
-import com.microsoft.azure.toolkit.intellij.appservice.DotNetRuntimeConfig
+import com.microsoft.azure.toolkit.intellij.appservice.dotnetRuntime.DotNetRuntimeConfig
 import com.microsoft.azure.toolkit.intellij.appservice.functionapp.DotNetFunctionAppDeploymentSlotDraft
 import com.microsoft.azure.toolkit.intellij.appservice.webapp.CreateDotNetWebAppTask
 import com.microsoft.azure.toolkit.intellij.appservice.webapp.DotNetAppServiceConfig

@@ -7,15 +7,21 @@ package com.microsoft.azure.toolkit.intellij.appservice
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.microsoft.azure.toolkit.ide.appservice.AppServiceActionsContributor
 import com.microsoft.azure.toolkit.ide.appservice.file.AppServiceFileActionsContributor
+import com.microsoft.azure.toolkit.ide.appservice.function.FunctionAppActionsContributor.FUNCTION_APP_ACTIONS
+import com.microsoft.azure.toolkit.ide.appservice.webapp.WebAppActionsContributor.WEBAPP_ACTIONS
 import com.microsoft.azure.toolkit.ide.common.IActionsContributor
 import com.microsoft.azure.toolkit.ide.common.action.ResourceCommonActionsContributor
+import com.microsoft.azure.toolkit.ide.common.icon.AzureIcons
 import com.microsoft.azure.toolkit.ide.containerregistry.ContainerRegistryActionsContributor
 import com.microsoft.azure.toolkit.intellij.appservice.actions.AppServiceFileAction
+import com.microsoft.azure.toolkit.intellij.appservice.actions.AppServiceRemoteDebuggingHandler
 import com.microsoft.azure.toolkit.intellij.appservice.actions.OpenAppServicePropertyViewAction
+import com.microsoft.azure.toolkit.intellij.debugger.canBeDebugged
 import com.microsoft.azure.toolkit.intellij.legacy.function.actions.CreateFunctionAppAction
 import com.microsoft.azure.toolkit.intellij.legacy.function.actions.DeployFunctionAppAction
 import com.microsoft.azure.toolkit.intellij.legacy.webapp.action.CreateWebAppAction
 import com.microsoft.azure.toolkit.intellij.legacy.webapp.action.DeployWebAppAction
+import com.microsoft.azure.toolkit.lib.appservice.AppServiceAppBase
 import com.microsoft.azure.toolkit.lib.appservice.function.AzureFunctions
 import com.microsoft.azure.toolkit.lib.appservice.function.FunctionApp
 import com.microsoft.azure.toolkit.lib.appservice.function.FunctionAppDeploymentSlot
@@ -33,7 +39,14 @@ class AppServiceRiderActionsContributor : IActionsContributor {
     private val initializeOrder =
         max(AppServiceActionsContributor.INITIALIZE_ORDER, ContainerRegistryActionsContributor.INITIALIZE_ORDER) + 1
 
+    val REMOTE_DEBUGGING: Action.Id<AppServiceAppBase<*, *, *>> = Action.Id.of("user/appservice.start_remote_debugging.app")
+
     override fun getOrder() = initializeOrder
+
+    override fun registerGroups(am: AzureActionManager) {
+        am.getGroup(FUNCTION_APP_ACTIONS).prependActions(REMOTE_DEBUGGING, "---")
+        am.getGroup(WEBAPP_ACTIONS).prependActions(REMOTE_DEBUGGING, "---")
+    }
 
     override fun registerActions(am: AzureActionManager) {
         val tm = AzureTaskManager.getInstance()
@@ -61,6 +74,14 @@ class AppServiceRiderActionsContributor : IActionsContributor {
                     AppServiceFileAction().saveAppServiceFile(file, (e as AnActionEvent).project, null)
                 }
             }
+            .register(am)
+
+        Action(REMOTE_DEBUGGING)
+            .withLabel("Attach Debugger")
+            .withIcon(AzureIcons.Action.ATTACH_DEBUGGER.iconPath)
+            .withIdParam { appService: AppServiceAppBase<*, *, *> -> appService.name }
+            .visibleWhen { s: Any? -> s is AppServiceAppBase<*, *, *> }
+            .enableWhen { appService: AppServiceAppBase<*, *, *> -> appService.canBeDebugged() }
             .register(am)
     }
 
@@ -97,7 +118,7 @@ class AppServiceRiderActionsContributor : IActionsContributor {
             ResourceCommonActionsContributor.SHOW_PROPERTIES,
             { r, _ -> r is FunctionApp },
             { c, e: AnActionEvent ->
-                e.project?.let { OpenAppServicePropertyViewAction.openFunctionAppPropertyView(c as FunctionApp, it) }
+               e.project?.let { OpenAppServicePropertyViewAction.openFunctionAppPropertyView(c as FunctionApp, it) }
             })
         am.registerHandler(
             ResourceCommonActionsContributor.SHOW_PROPERTIES,
@@ -105,5 +126,11 @@ class AppServiceRiderActionsContributor : IActionsContributor {
             { c, e: AnActionEvent ->
                 e.project?.let { OpenAppServicePropertyViewAction.openFunctionAppDeploymentSlotPropertyView(c as FunctionAppDeploymentSlot, it) }
             })
+
+        am.registerHandler(
+            REMOTE_DEBUGGING,
+            { r, _ -> r is  AppServiceAppBase<*, *, *> },
+            AppServiceRemoteDebuggingHandler()
+        )
     }
 }

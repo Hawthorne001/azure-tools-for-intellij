@@ -2,6 +2,7 @@
   ~ Copyright 2018-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the MIT license.
   -->
 
+<!--suppress PluginXmlValidity -->
 <idea-plugin>
     <depends>Docker</depends>
 
@@ -67,7 +68,7 @@
                      defaultValue="true"
                      description="Enable downloading from Azure Functions Core Tools releases feed URL."/>
         <registryKey key="azure.function_app.core_tools.feed.url"
-                     defaultValue="https://functionscdn.azureedge.net/public/cli-feed-v4.json"
+                     defaultValue="https://cdn.functions.azure.com/public/cli-feed-v4.json"
                      description="Azure Functions Core Tools releases feed URL."/>
 
         <internalFileTemplate name="Trigger Azure HTTP Function"/>
@@ -100,6 +101,9 @@
                 implementation="com.microsoft.azure.toolkit.intellij.legacy.function.FunctionAppDeploymentSlotPropertyViewProvider"/>
 
         <notificationGroup id="Azure AppServices" displayType="BALLOON" isLogByDefault="true"/>
+
+        <xdebugger.dialog.process.view.provider implementation="com.microsoft.azure.toolkit.intellij.debugger.view.AttachToAzureAppServiceProcessViewProvider" />
+        <xdebugger.attachDebuggerProvider implementation="com.microsoft.azure.toolkit.intellij.debugger.RiderAzureAttachDebuggerProvider" />
     </extensions>
 
     <actions>
@@ -119,4 +123,8 @@
                 icon="/icons/FunctionApp/Deploy.svg">
         </action>
     </actions>
+
+    <projectListeners>
+        <listener topic="com.intellij.xdebugger.XDebuggerManagerListener" class="com.microsoft.azure.toolkit.intellij.debugger.pings.AzureAppServiceDebugSessionsListener"/>
+    </projectListeners>
 </idea-plugin>

@@ -10,32 +10,28 @@ import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJson
 import com.microsoft.azure.toolkit.intellij.legacy.function.localsettings.FunctionLocalSettings
 import org.apache.http.client.utils.URIBuilder
 
-internal fun getArguments(profile: LaunchSettingsJson.Profile?, projectOutput: ProjectOutput?): String {
+internal fun getArguments(profile: LaunchSettingsJson.Profile?, projectOutput: ProjectOutput?) = buildString {
     val defaultArguments = projectOutput?.defaultArguments
-    return if (defaultArguments.isNullOrEmpty()) profile?.commandLineArgs ?: ""
-    else {
-        val parametersList = ParametersListUtil.join(defaultArguments)
-        val commandLineArgs = profile?.commandLineArgs
-        if (commandLineArgs != null) {
-            "$parametersList $commandLineArgs"
-        } else {
-            parametersList
-        }
+    val profileArgs = profile?.commandLineArgs
+
+    if (!defaultArguments.isNullOrEmpty()) {
+        append(ParametersListUtil.join(defaultArguments))
+        append(" ")
+    }
+
+    if (!profileArgs.isNullOrEmpty()) {
+        append(profileArgs)
     }
 }
 
-internal fun getWorkingDirectory(profile: LaunchSettingsJson.Profile?, projectOutput: ProjectOutput?): String {
+fun getWorkingDirectory(profile: LaunchSettingsJson.Profile?, projectOutput: ProjectOutput?): String {
     return profile?.workingDirectory ?: projectOutput?.workingDirectory ?: ""
 }
 
-internal fun getEnvironmentVariables(profile: LaunchSettingsJson.Profile?): Map<String, String> {
-    val environmentVariables = profile
-        ?.environmentVariables
-        ?.mapNotNull { it.value?.let { value -> it.key to value } }
-        ?.toMap()
-        ?: emptyMap()
-
-    return environmentVariables
+internal fun getEnvironmentVariables(profile: LaunchSettingsJson.Profile?) = buildMap {
+    profile?.environmentVariables?.forEach { pair ->
+        pair.value?.let { put(pair.key, it) }
+    }
 }
 
 private val portRegex = Regex("(--port|-p) (\\d+)", RegexOption.IGNORE_CASE)
@@ -45,12 +41,20 @@ internal fun getApplicationUrl(
     projectOutput: ProjectOutput?,
     functionLocalSettings: FunctionLocalSettings?
 ): String {
+    val arguments = getArguments(profile, projectOutput)
+    return getApplicationUrl(profile, arguments, functionLocalSettings)
+}
+
+fun getApplicationUrl(
+    profile: LaunchSettingsJson.Profile?,
+    arguments: String,
+    functionLocalSettings: FunctionLocalSettings?
+): String {
     val applicationUrl = profile?.applicationUrl
     if (!applicationUrl.isNullOrEmpty()) {
         return applicationUrl.substringBefore(';')
     }
 
-    val arguments = getArguments(profile, projectOutput)
     if (arguments.isNotEmpty()) {
         val argumentPort = portRegex.find(arguments)?.groupValues?.getOrNull(2)?.toIntOrNull()
         if (argumentPort != null) {
@@ -64,4 +68,9 @@ internal fun getApplicationUrl(
     }
 
     return ""
+}
+
+internal fun getLaunchBrowserFlag(profile: LaunchSettingsJson.Profile?): Boolean {
+    val launchBrowser = profile?.launchBrowser
+    return launchBrowser == true
 }

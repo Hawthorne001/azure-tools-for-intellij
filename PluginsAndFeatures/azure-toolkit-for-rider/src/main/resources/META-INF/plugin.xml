@@ -27,6 +27,7 @@
     <xi:include href="/META-INF/azure-intellij-plugin-service-explorer.xml" xpointer="xpointer(/idea-plugin/*)"/>
     <xi:include href="/META-INF/azure-intellij-plugin-appservice.xml" xpointer="xpointer(/idea-plugin/*)"/>
     <xi:include href="/META-INF/azure-intellij-plugin-appservice-dotnet.xml" xpointer="xpointer(/idea-plugin/*)"/>
+    <xi:include href="/META-INF/azure-intellij-plugin-appservice-dotnet-aspire.xml" xpointer="xpointer(/idea-plugin/*)"/>
     <xi:include href="/META-INF/azure-intellij-plugin-arm.xml" xpointer="xpointer(/idea-plugin/*)"/>
     <xi:include href="/META-INF/azure-intellij-plugin-database.xml" xpointer="xpointer(/idea-plugin/*)"/>
     <xi:include href="/META-INF/azure-intellij-plugin-database-dotnet.xml" xpointer="xpointer(/idea-plugin/*)"/>
@@ -46,6 +47,8 @@
     <depends>com.intellij.modules.rider</depends>
 
     <extensions defaultExtensionNs="com.intellij">
+        <postStartupActivity implementation="com.microsoft.azure.toolkit.intellij.base.PluginLifecycleActivity"/>
+
         <applicationConfigurable parentId="tools"
                                  displayName="Azure"
                                  id="com.microsoft.intellij.AzureConfigurable"
@@ -75,11 +78,6 @@
     <extensions defaultExtensionNs="com.microsoft.tooling.msservices.intellij.azure">
         <actions implementation="com.microsoft.azure.toolkit.intellij.settings.IntellijCommonActionsContributor"/>
     </extensions>
-
-    <applicationListeners>
-        <listener class="com.microsoft.azure.toolkit.intellij.base.PluginLifecycleListener"
-                  topic="com.intellij.ide.AppLifecycleListener"/>
-    </applicationListeners>
 
     <actions>
         <group id="AzurePopupGroup"

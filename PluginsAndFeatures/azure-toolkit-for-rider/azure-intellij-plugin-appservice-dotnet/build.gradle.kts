@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.kotlin)
     alias(libs.plugins.serialization)
     id("org.jetbrains.intellij.platform.module")
+    id("java")
 }
 
 repositories {
@@ -20,9 +21,7 @@ dependencies {
     intellijPlatform {
         rider(platformVersion, false)
         jetbrainsRuntime()
-        bundledModule("intellij.rider")
         bundledPlugins(listOf("com.jetbrains.restClient"))
-        instrumentationTools()
     }
 
     implementation(libs.azureToolkitAuthLib)

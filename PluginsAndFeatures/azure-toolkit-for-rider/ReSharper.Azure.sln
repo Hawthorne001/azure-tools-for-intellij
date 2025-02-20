@@ -8,7 +8,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		src\dotnet\Directory.Build.props = src\dotnet\Directory.Build.props
 		CHANGELOG.md = CHANGELOG.md
-		README.md = README.md
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Azure.Psi", "src\dotnet\ReSharper.Azure\Azure.Psi\Azure.Psi.csproj", "{90893DE8-F9A4-4970-BE08-0A5E3EB97E1E}"
