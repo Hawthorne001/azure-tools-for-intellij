@@ -15,7 +15,6 @@ import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
-import com.intellij.openapi.util.io.FileUtil
 import com.intellij.util.execution.ParametersListUtil
 import com.jetbrains.rider.run.ConsoleKind
 import com.jetbrains.rider.run.TerminalProcessHandler
@@ -29,9 +28,14 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import java.io.File
+import java.nio.file.Files
+import java.nio.file.Path
+import kotlin.io.path.absolutePathString
+import kotlin.io.path.exists
+import kotlin.io.path.readText
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 @Service(Service.Level.PROJECT)
 class FunctionHostDebugLauncher(private val project: Project) {
@@ -79,7 +83,7 @@ class FunctionHostDebugLauncher(private val project: Project) {
         modifyProcessMessageLineEndings: Boolean = false
     ): Pair<ExecutionResult, Int?> {
         val temporaryPidFile = withContext(Dispatchers.IO) { createTemporaryPidFile() }
-        LOG.trace { "Created temporary file ${temporaryPidFile.absolutePath}" }
+        LOG.trace { "Created temporary file ${temporaryPidFile.absolutePathString()}" }
         val programParameters = modifyProgramParameters(executable.programParameterString, temporaryPidFile)
         LOG.debug { "Program parameters: $programParameters" }
         val environmentVariables = modifyEnvironmentVariables(executable.environmentVariables)
@@ -116,7 +120,7 @@ class FunctionHostDebugLauncher(private val project: Project) {
         return executionResult to pid
     }
 
-    private fun modifyProgramParameters(programParameterString: String, temporaryPidFile: File): List<String> {
+    private fun modifyProgramParameters(programParameterString: String, temporaryPidFile: Path): List<String> {
         val programParameters = ParametersListUtil.parse(programParameterString)
 
         if (!programParameters.contains(DOTNET_ISOLATED_DEBUG_ARGUMENT)) {
@@ -127,15 +131,16 @@ class FunctionHostDebugLauncher(private val project: Project) {
             programParameters.add(ENABLE_JSON_OUTPUT_ARGUMENT)
         }
 
+        val pathString = temporaryPidFile.absolutePathString()
         if (!programParameters.contains(JSON_OUTPUT_FILE_ARGUMENT)) {
             programParameters.add(JSON_OUTPUT_FILE_ARGUMENT)
-            programParameters.add(temporaryPidFile.absolutePath)
+            programParameters.add(pathString)
         } else {
             val argumentIndex = programParameters.indexOf(JSON_OUTPUT_FILE_ARGUMENT)
             if (argumentIndex < programParameters.size - 1) {
-                programParameters[argumentIndex + 1] = temporaryPidFile.absolutePath
+                programParameters[argumentIndex + 1] = pathString
             } else {
-                programParameters.add(temporaryPidFile.absolutePath)
+                programParameters.add(pathString)
             }
         }
 
@@ -149,22 +154,18 @@ class FunctionHostDebugLauncher(private val project: Project) {
         )
     }
 
-    private fun createTemporaryPidFile(): File {
+    private fun createTemporaryPidFile(): Path {
         // We will need to read the worker process PID, so the debugger can later attach to it.
         // We are using this file to read the PID,
         // (see https://github.com/Azure/azure-functions-dotnet-worker/issues/900).
         // Example contents: { "name":"dotnet-worker-startup", "workerProcessId":28460 }
-        return FileUtil.createTempFile(
-            File(FileUtil.getTempDirectory()),
-            "Rider-AzureFunctions-IsolatedWorker-",
-            "json.pid",
-            true,
-            true
-        )
+        return Files.createTempFile("", ".tmp")
     }
 
-    private suspend fun waitForThePrintedPid(temporaryPidFile: File): Int? {
+    private suspend fun waitForThePrintedPid(temporaryPidFile: Path): Int? {
         var timeout = 0.milliseconds
+        val delayInterval = 1.seconds
+
         while (timeout <= waitDuration) {
             val pidFromJsonOutput = readPidFromJsonOutput(temporaryPidFile)
             if (pidFromJsonOutput != null) {
@@ -175,28 +176,28 @@ class FunctionHostDebugLauncher(private val project: Project) {
                 LOG.debug("Unable to read process id from JSON file")
             }
 
-            delay(500)
-            timeout += 500.milliseconds
+            delay(delayInterval)
+            timeout += delayInterval
         }
 
         val pidFromJsonOutput = readPidFromJsonOutput(temporaryPidFile)
         return pidFromJsonOutput
     }
 
-    private suspend fun readPidFromJsonOutput(pidFile: File): Int? {
+    private suspend fun readPidFromJsonOutput(pidFile: Path): Int? {
         if (!pidFile.exists()) {
-            LOG.trace { "${pidFile.absolutePath} does not exist" }
+            LOG.trace { "${pidFile.absolutePathString()} does not exist" }
             return null
         }
         val jsonText = withContext(Dispatchers.IO) { pidFile.readText() }
         if (jsonText.isEmpty()) {
-            LOG.trace { "${pidFile.absolutePath} is empty" }
+            LOG.trace { "${pidFile.absolutePathString()} is empty" }
             return null
         } else {
-            LOG.trace { "Content of ${pidFile.absolutePath}: $jsonText" }
+            LOG.trace { "Content of ${pidFile.absolutePathString()}: $jsonText" }
         }
         val content = json.decodeFromString<JsonOutputFile>(jsonText)
-        LOG.trace { "Decoded content of ${pidFile.absolutePath}: $content" }
+        LOG.trace { "Decoded content of ${pidFile.absolutePathString()}: $content" }
 
         return content.workerProcessId
     }
