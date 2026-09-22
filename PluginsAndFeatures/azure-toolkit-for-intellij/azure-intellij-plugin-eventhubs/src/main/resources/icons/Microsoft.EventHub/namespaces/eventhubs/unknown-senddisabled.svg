@@ -1,11 +1,1 @@
-<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect opacity="0.7" x="4" y="4" width="2" height="2" fill="#62B543"/>
-<rect opacity="0.7" x="4" y="7" width="2" height="2" fill="#62B543"/>
-<rect opacity="0.7" x="7" y="5.5" width="2" height="2" fill="#62B543"/>
-<path opacity="0.7" fill-rule="evenodd" clip-rule="evenodd" d="M10 7H12V8.02746C11.2656 8.10865 10.5844 8.36658 10 8.75777V7ZM9 9.67133V8.5H7V10.5H8.46776C8.61497 10.2038 8.79386 9.92608 9 9.67133Z" fill="#62B543"/>
-<path fill-rule="evenodd" clip-rule="evenodd" d="M15 1V2V3L15 5H14H13L13 3H3V5H2H1V3V2V1H15ZM8.03943 13.0983C8.13201 13.7952 8.38409 14.4418 8.75778 15H4.23607L8.03943 13.0983Z" fill="#9AA7B0" fill-opacity="0.8"/>
-<path opacity="0.7" fill-rule="evenodd" clip-rule="evenodd" d="M5.99998 10.882V10H4.23605L5.99998 10.882Z" fill="#62B543"/>
-<path opacity="0.8" d="M0 16L7 12.5L0 9V11.625L5.25 12.5L0 13.375V16Z" fill="#9AA7B0"/>
-<circle cx="12.5" cy="12.5" r="3" stroke="#E05555"/>
-<rect x="10.3787" y="11.0858" width="1" height="5" transform="rotate(-45 10.3787 11.0858)" fill="#E05555"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 16 16"><rect width="2" height="2" x="4" y="4" fill="#62B543" opacity=".7"/><rect width="2" height="2" x="4" y="7" fill="#62B543" opacity=".7"/><rect width="2" height="2" x="7" y="5.5" fill="#62B543" opacity=".7"/><path fill="#62B543" fill-rule="evenodd" d="M10 7H12V8.02746C11.2656 8.10865 10.5844 8.36658 10 8.75777V7ZM9 9.67133V8.5H7V10.5H8.46776C8.61497 10.2038 8.79386 9.92608 9 9.67133Z" clip-rule="evenodd" opacity=".7"/><path fill="#9AA7B0" fill-opacity=".8" fill-rule="evenodd" d="M15 1V2V3L15 5H14H13L13 3H3V5H2H1V3V2V1H15ZM8.03943 13.0983C8.13201 13.7952 8.38409 14.4418 8.75778 15H4.23607L8.03943 13.0983Z" clip-rule="evenodd"/><path fill="#62B543" fill-rule="evenodd" d="M5.99998 10.882V10H4.23605L5.99998 10.882Z" clip-rule="evenodd" opacity=".7"/><path fill="#9AA7B0" d="M0 16L7 12.5L0 9V11.625L5.25 12.5L0 13.375V16Z" opacity=".8"/><circle cx="12.5" cy="12.5" r="3" stroke="#E05555"/><rect width="1" height="5" x="10.379" y="11.086" fill="#E05555" transform="rotate(-45 10.3787 11.0858)"/></svg>
