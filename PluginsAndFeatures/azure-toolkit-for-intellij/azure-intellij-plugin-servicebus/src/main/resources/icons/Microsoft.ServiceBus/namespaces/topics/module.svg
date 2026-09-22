@@ -1,12 +1,1 @@
-<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path fill-rule="evenodd" clip-rule="evenodd" d="M15 1L15 2L15 3L15 3.5L13 3.5L13 3L3 3L3 5L2 5L1 5L1 3L1 2L1 0.999999L15 1ZM13 13L13 12.5L15 12.5L15 13L15 14L15 15L1 15L1 14L1 13L1 12L2 12L3 12L3 13L13 13Z" fill="#9AA7B0" fill-opacity="0.8"/>
-<path opacity="0.7" fill-rule="evenodd" clip-rule="evenodd" d="M7 6H1V11H7V6ZM4 8L2 7V8L4 9L6 8V7L4 8Z" fill="#40B6E0"/>
-<path opacity="0.7" d="M12 4.5H15V6.5H12V4.5Z" fill="#40B6E0"/>
-<path opacity="0.7" d="M12 9.5H15V11.5H12V9.5Z" fill="#40B6E0"/>
-<rect opacity="0.8" x="8" y="6.5" width="1" height="1" fill="#9AA7B0"/>
-<rect opacity="0.8" x="9" y="6" width="1" height="1" fill="#9AA7B0"/>
-<rect opacity="0.8" x="9" y="9" width="1" height="1" fill="#9AA7B0"/>
-<rect opacity="0.8" x="10" y="5.5" width="1" height="1" fill="#9AA7B0"/>
-<rect opacity="0.8" x="8" y="8.5" width="1" height="1" fill="#9AA7B0"/>
-<rect opacity="0.8" x="10" y="9.5" width="1" height="1" fill="#9AA7B0"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 16 16"><path fill="#9AA7B0" fill-opacity=".8" fill-rule="evenodd" d="M15 1L15 2L15 3L15 3.5L13 3.5L13 3L3 3L3 5L2 5L1 5L1 3L1 2L1 0.999999L15 1ZM13 13L13 12.5L15 12.5L15 13L15 14L15 15L1 15L1 14L1 13L1 12L2 12L3 12L3 13L13 13Z" clip-rule="evenodd"/><path fill="#40B6E0" fill-rule="evenodd" d="M7 6H1V11H7V6ZM4 8L2 7V8L4 9L6 8V7L4 8Z" clip-rule="evenodd" opacity=".7"/><path fill="#40B6E0" d="M12 4.5H15V6.5H12V4.5Z" opacity=".7"/><path fill="#40B6E0" d="M12 9.5H15V11.5H12V9.5Z" opacity=".7"/><rect width="1" height="1" x="8" y="6.5" fill="#9AA7B0" opacity=".8"/><rect width="1" height="1" x="9" y="6" fill="#9AA7B0" opacity=".8"/><rect width="1" height="1" x="9" y="9" fill="#9AA7B0" opacity=".8"/><rect width="1" height="1" x="10" y="5.5" fill="#9AA7B0" opacity=".8"/><rect width="1" height="1" x="8" y="8.5" fill="#9AA7B0" opacity=".8"/><rect width="1" height="1" x="10" y="9.5" fill="#9AA7B0" opacity=".8"/></svg>
